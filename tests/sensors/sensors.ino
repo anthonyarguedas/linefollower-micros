@@ -14,20 +14,34 @@
 
 #define LED_PIN 23
 
-const int pins[8] = {D1, D2, D3, D4, D5, D6, D7, D8};
+QTRSensors qtr;
 
-const int weights[8] = {-4, -3, -2, -1, 1, 2, 3, 4};
+const uint8_t SensorCount = 8;
+uint16_t sensorValues[SensorCount];
 
 // Create the TCS34725 instance
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
 
 void setup() {
+
   Serial.begin(115200);
-  //Wire.begin(13, 12); // SDA, SCL
- 
-  for (int i = 0; i < 8; i++) {
-    pinMode(pins[i], INPUT);
+
+  // Configurar array de sensores
+  qtr.setTypeRC();
+  qtr.setSensorPins((const uint8_t[]){D1, D2, D3, D4, D5, D6, D7, D8}, SensorCount);
+
+  delay(500);
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH); // turn on Arduino's LED to indicate we are in calibration mode
+
+  // Calibrate for 10 s
+  for (uint16_t i = 0; i < 400; i++)
+  {
+    qtr.calibrate();
   }
+  digitalWrite(LED_BUILTIN, LOW); // turn off Arduino's LED to indicate we are through with calibration
+
+  delay(1000);
 
   if (tcs.begin()) {
     //Serial.println("Found sensor");
@@ -35,44 +49,28 @@ void setup() {
     Serial.println("No TCS34725 found ... check your connections");
     while (1); // halt!
   }
-
-  pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, LOW);
 }
 
 void loop() {
-  int readings[8];
-  long weightedSum = 0;
-  long total = 0;
+  // read calibrated sensor values and obtain a measure of the line position
+  // from 0 to 5000
+  uint16_t position = qtr.readLineBlack(sensorValues);
 
-  for (int i = 0; i < 8; i++) {
-    readings[i] = analogRead(pins[i]);
-    Serial.print("D");
-    Serial.print(i + 1);
-    Serial.print(": ");
-    Serial.print(readings[i]);
-    Serial.print(", ");
-
-    weightedSum += readings[i] * weights[i];
-    total += readings[i];
+  // print the sensor values as numbers from 0 to 1000, where 0 means maximum
+  // reflectance and 1000 means minimum reflectance, followed by the line
+  // position
+  for (uint8_t i = 0; i < SensorCount; i++)
+  {
+    Serial.print(sensorValues[i]);
+    Serial.print(' ');
   }
-
   Serial.println();
-
-  // Evitar división por cero
-  if (total == 0) {
-    total = 1;
-  }
-
-  float position = (float)weightedSum / total;
-  int normalizedPosition = (int)(position * 4096 / 4);
-
-  Serial.print("Position: ");
-  Serial.println(normalizedPosition);
+  Serial.println(position);
 
   uint8_t colorCode;
   tcs.getColorCode(&colorCode);
   printColorCode(colorCode);
+  Serial.println();
   Serial.println();
 
   delay(500);
