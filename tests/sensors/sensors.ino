@@ -1,6 +1,8 @@
 #include <Wire.h>
 #include <Adafruit_TCS34725.h>
 
+#include "ColorDetection.h"
+
 #define D8 34
 #define D7 35
 #define D6 32
@@ -28,10 +30,10 @@ void setup() {
   }
 
   if (tcs.begin()) {
-    Serial.println("Found color sensor");
+    //Serial.println("Found sensor");
   } else {
     Serial.println("No TCS34725 found ... check your connections");
-    while (1); // Halt
+    while (1); // halt!
   }
 
   pinMode(LED_PIN, OUTPUT);
@@ -68,21 +70,10 @@ void loop() {
   Serial.print("Position: ");
   Serial.println(normalizedPosition);
 
-  float red, green, blue;
-
-  //tcs.setInterrupt(false);  // turn on LED
-  digitalWrite(LED_PIN, HIGH);
-
-  delay(60);  // takes 50ms to read
-
-  tcs.getRGB(&red, &green, &blue);
-
-  ///tcs.setInterrupt(true);  // turn off LED
-  digitalWrite(LED_PIN, LOW);
-
-  Serial.print("R: "); Serial.print(int(red)); 
-  Serial.print(" G: "); Serial.print(int(green)); 
-  Serial.print(" B: "); Serial.println(int(blue));
+  uint8_t colorCode;
+  tcs.getColorCode(&colorCode);
+  printColorCode(colorCode);
+  Serial.println();
 
   delay(500);
 }
