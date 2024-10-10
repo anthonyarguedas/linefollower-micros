@@ -9,6 +9,8 @@
 #define GREEN 2
 #define BLUE 3
 
+extern Adafruit_TCS34725 tcs;
+
 uint8_t expectedRed[3] = {137, 68, 47};
 uint8_t expectedGreen[3] = {73, 115, 55};
 uint8_t expectedBlue[3] = {62, 82, 103};
@@ -19,13 +21,13 @@ uint8_t colorCodes[AMOUNT_OF_COLORS] = {RED, GREEN, BLUE};
 
 #define DIFF_THRESHOLD 10
 
-void Adafruit_TCS34725::getColorCode(uint8_t *colorCode) {
+void getColorCode(uint8_t *colorCode) {
   float red, green, blue;
 
   uint32_t t0 = millis();
   while(millis() - t0 < 60);  // takes 50ms to read
 
-  getRGB(&red, &green, &blue);
+  tcs.getRGB(&red, &green, &blue);
 
   bool colorFound = false;
 
