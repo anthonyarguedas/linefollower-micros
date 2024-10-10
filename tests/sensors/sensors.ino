@@ -1,5 +1,6 @@
 #include <Wire.h>
 #include <Adafruit_TCS34725.h>
+#include <QTRSensors.h>
 
 #include "ColorDetection.h"
 
@@ -68,7 +69,7 @@ void loop() {
   Serial.println(position);
 
   uint8_t colorCode;
-  tcs.getColorCode(&colorCode);
+  getColorCode(&colorCode);
   printColorCode(colorCode);
   Serial.println();
   Serial.println();
