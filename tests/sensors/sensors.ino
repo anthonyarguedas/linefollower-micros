@@ -28,20 +28,21 @@ void setup() {
   Serial.begin(115200);
 
   // Configurar array de sensores
-  qtr.setTypeRC();
+  qtr.setTypeAnalog();
   qtr.setSensorPins((const uint8_t[]){D1, D2, D3, D4, D5, D6, D7, D8}, SensorCount);
+  qtr.setNonDimmable();
 
   delay(500);
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, HIGH); // turn on Arduino's LED to indicate we are in calibration mode
 
+  uint32_t startTime = millis();
+  Serial.println("Calibration started.");
   // Calibrate for 10 s
-  for (uint16_t i = 0; i < 400; i++)
+  while (millis() - startTime < 10000)
   {
     qtr.calibrate();
   }
-  digitalWrite(LED_BUILTIN, LOW); // turn off Arduino's LED to indicate we are through with calibration
-
+  Serial.println("Calibration done.");
+  
   delay(1000);
 
   if (tcs.begin()) {
