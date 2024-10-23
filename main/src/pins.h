@@ -13,4 +13,13 @@
 #define BIN1 4
 #define BIN2 3
 
+#define D8 23
+#define D7 22
+#define D6 21
+#define D5 20
+#define D4 17
+#define D3 16
+#define D2 15
+#define D1 14
+
 #endif
