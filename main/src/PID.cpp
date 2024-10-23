@@ -24,6 +24,14 @@ void initMotorPins() {
   digitalWrite(BIN2, LOW);
 
   analogWriteResolution(10);
+
+  Serial.print("Initial Kp = ");
+  Serial.println(Kp);
+  Serial.print("Initial Kd = ");
+  Serial.println(Kd);
+  Serial.print("Initial Ki = ");
+  Serial.println(Ki);
+  Serial.println();
 }
 
 // Function to set motor speeds
