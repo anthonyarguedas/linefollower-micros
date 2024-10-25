@@ -16,12 +16,16 @@ void initMotorPins() {
   pinMode(AIN2, OUTPUT);
   pinMode(BIN1, OUTPUT);
   pinMode(BIN2, OUTPUT);
+  pinMode(SLP, OUTPUT);
 
   // Turn off motors - Initial state
   digitalWrite(AIN1, LOW);
   digitalWrite(AIN2, LOW);
   digitalWrite(BIN1, LOW);
   digitalWrite(BIN2, LOW);
+
+  // Enable the driver
+  digitalWrite(SLP, HIGH);
 
   analogWriteResolution(10);
 
@@ -37,12 +41,19 @@ void initMotorPins() {
 // Function to set motor speeds
 void setMotorPWM(uint16_t pwm, uint8_t IN1_PIN, uint8_t IN2_PIN) {
   if (pwm < 0) {  // Reverse speeds
-    analogWrite(IN1_PIN, -pwm);
-    digitalWrite(IN2_PIN, LOW);
-  } else {  // Stop or forward
+    analogWrite(IN2_PIN, -pwm);
     digitalWrite(IN1_PIN, LOW);
-    analogWrite(IN2_PIN, pwm);
+  } else {  // Stop or forward
+    analogWrite(IN1_PIN, pwm);
+    digitalWrite(IN2_PIN, LOW);
   }
+}
+
+void turnMotorsOff() {
+  digitalWrite(AIN1, LOW);
+  digitalWrite(AIN2, LOW);
+  digitalWrite(BIN1, LOW);
+  digitalWrite(BIN2, LOW);
 }
 
 void updatePID(uint16_t position) {
