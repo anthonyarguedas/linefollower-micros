@@ -10,8 +10,9 @@
 
 #define AIN1 0
 #define AIN2 1
-#define BIN1 4
-#define BIN2 3
+#define SLP 2
+#define BIN1 3
+#define BIN2 4
 
 #define D8 23
 #define D7 22
