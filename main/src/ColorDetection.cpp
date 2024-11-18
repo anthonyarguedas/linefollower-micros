@@ -28,17 +28,20 @@ void getColorCode(unsigned short *colorCode) {
 
 void printColorCode(unsigned short colorCode) {
     switch (colorCode) {
-        case OTHER_COLOR:
-            Serial.print("OTHER_COLOR");
-            break;
-        case RED:
-            Serial.print("RED");
-            break;
-        case GREEN:
-            Serial.print("GREEN");
-            break;
-        case BLUE:
-            Serial.print("BLUE");
-            break;
+      case OTHER_COLOR:
+        Serial.print("OTHER_COLOR");
+        break;
+      case RED:
+        Serial.print("RED");
+        break;
+      case GREEN:
+        Serial.print("GREEN");
+        break;
+      case BLUE:
+        Serial.print("BLUE");
+        break;
+      case BLACK:
+        Serial.print("BLACK");
+        break;
     }
 }
