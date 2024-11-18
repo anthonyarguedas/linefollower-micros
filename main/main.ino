@@ -3,6 +3,7 @@
 #include "src/PID.h"
 #include "src/LineDetection.h"
 #include "src/ColorDetection.h"
+#include <Adafruit_TCS34725.h>
 
 
 String command = '.';
@@ -95,56 +96,70 @@ void loop() {
         }
     }
 
-    if (state == BACKWARD) {
-        if (millis() - backwardTimer >= 3000) {state = FORWARD;}
-    } else if (state == BRAKE) {
-        if (millis() - brakeTimer >= 10000) {state = FORWARD;}
-    } else {
-        unsigned short colorCode;
-        getColorCode(&colorCode);
-        printColorCode(colorCode);
+    switch(state) {
+        case PAUSED:
+            break;
+        case BACKWARD:
+            if (millis() - backwardTimer >= 3000) {state = FORWARD;}
+            break;
+        case BRAKE:
+            if (millis() - brakeTimer >= 10000) {state = FORWARD;}
+            break;
+        default:
+            unsigned short colorCode;
+            getColorCode(&colorCode);
+            printColorCode(colorCode);
 
-        switch(colorCode) {
-            case BLACK:
-                state = FORWARD;
-                break;
-            case OTHER_COLOR:
-                break;
-            default:
-                switch(colorStates[colorCode]) {
-                    case FAST:
-                        state = FAST;
-                        backwardLock = false;
-                        brakeLock = false;
-                        break;
-                    case BRAKE:
-                        if (!brakeLock) {
-                            state = BRAKE;
-                            brakeLock = true;
-                            brakeTimer = millis();
-                        }
-                        backwardLock = false;
-                        break;
-                    case BACKWARD:
-                        if (!backwardLock) {
-                            state = BACKWARD;
-                            backwardLock = true;
-                            backwardTimer = millis();
-                        }
-                        brakeLock = false;
-                        break;
-                }
-        }
+            switch(colorCode) {
+                case BLACK:
+                    state = FORWARD;
+                    break;
+                case OTHER_COLOR:
+                    break;
+                default:
+                    switch(colorStates[colorCode]) {
+                        case FAST:
+                            state = FAST;
+                            backwardLock = false;
+                            brakeLock = false;
+                            break;
+                        case BRAKE:
+                            if (!brakeLock) {
+                                state = BRAKE;
+                                brakeLock = true;
+                                brakeTimer = millis();
+                            }
+                            backwardLock = false;
+                            break;
+                        case BACKWARD:
+                            if (!backwardLock) {
+                                state = BACKWARD;
+                                backwardLock = true;
+                                backwardTimer = millis();
+                            }
+                            brakeLock = false;
+                            break;
+                    }
+            }
     }
 
+
+    
     /*** Controlar motores según la posición y el estado ***/
-    int position = getLinePosition();
-    delayNB(1);
-    Serial.print(position);
-    Serial.print(", ");
-    printState(state);
-    Serial.println();
-    updatePID(position, state);
+    switch (state) {
+        case PAUSED:
+            break;
+        default:
+            int position = getLinePosition();
+            delayNB(1);
+            Serial.print(", ");
+            Serial.print(position);
+            Serial.print(", ");
+            printState(state);
+            Serial.println();
+            updatePID(position, state);
+    }
+
 
     delayNB(50);
 } 
