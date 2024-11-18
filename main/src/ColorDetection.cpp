@@ -6,7 +6,6 @@ unsigned short expectedGreen[3] = {73, 115, 55};
 unsigned short expectedBlue[3] = {62, 82, 103};
 unsigned short expectedBlack[3] = {32, 32, 32};
 
-#define AMOUNT_OF_COLORS 4
 unsigned short* expectedColors[AMOUNT_OF_COLORS] = {expectedRed, expectedGreen, expectedBlue, expectedBlack};
 unsigned short colorCodes[AMOUNT_OF_COLORS] = {RED, GREEN, BLUE, BLACK};
 
