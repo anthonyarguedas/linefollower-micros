@@ -3,11 +3,8 @@
 
 #include <Arduino.h>
 #include <Adafruit_TCS34725.h>
+#include "globals.h"
 
-#define OTHER_COLOR 0
-#define RED 1
-#define GREEN 2
-#define BLUE 3
 
 extern Adafruit_TCS34725 tcs;
 
