@@ -8,7 +8,7 @@
 
 void initMotorPins();
 void setMotorPWM(uint16_t pwm, uint8_t IN1_PIN, uint8_t IN2_PIN);
-void updatePID(uint16_t position);
+void updatePID(int16_t position);
 void updatePIDParams(String &input);
 void turnMotorsOff(); 
 

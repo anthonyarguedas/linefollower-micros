@@ -1,11 +1,11 @@
 #include "PID.h"
 
 
-float Kp = 0.6;  // Proportional gain
-float Ki = 0.0;  // Integral gain
-float Kd = 0.1;  // Derivative gain
+float Kp = 5.5;  // Proportional gain
+float Ki = 0;  // Integral gain
+float Kd = 10;  // Derivative gain
 
-uint16_t targetPosition = 0;  // Target position (centered on the line)
+int16_t targetPosition = 0;  // Target position (centered on the line)
 
 float previousError = 0;
 float integral = 0;
@@ -19,15 +19,19 @@ void initMotorPins() {
   pinMode(SLP, OUTPUT);
 
   // Turn off motors - Initial state
-  digitalWrite(AIN1, LOW);
-  digitalWrite(AIN2, LOW);
-  digitalWrite(BIN1, LOW);
-  digitalWrite(BIN2, LOW);
-
+  analogWrite(AIN1, 0);
+  analogWrite(AIN2, 0);
+  analogWrite(BIN1, 0);
+  analogWrite(BIN2, 0);
+  analogWriteFrequency(AIN1, 25000);
+  analogWriteFrequency(AIN2, 25000);
+  analogWriteFrequency(BIN1, 25000);
+  analogWriteFrequency(BIN2, 25000);
+  
   // Enable the driver
   digitalWrite(SLP, HIGH);
 
-  analogWriteResolution(10);
+  // analogWriteResolution(10);
 
   Serial.print("Initial Kp = ");
   Serial.println(Kp);
@@ -56,7 +60,7 @@ void turnMotorsOff() {
   digitalWrite(BIN2, LOW);
 }
 
-void updatePID(uint16_t position) {
+void updatePID(int16_t position) {
   // Calculate PID control output
   uint32_t currentTime = millis();
   float deltaTime = (currentTime - lastTime) / 1000.0;  // Time difference in seconds
@@ -64,23 +68,43 @@ void updatePID(uint16_t position) {
   // Proportional term
   float error = targetPosition - position;
   
+  // Serial.print("error=");
+  // Serial.println(error);
+
   // Integral term
-  integral += error * deltaTime;
+  integral += error;
   
   // Derivative term
-  float derivative = (error - previousError) / deltaTime;
-  
+  // float derivative = (error - previousError) / deltaTime;
+  float derivative = (error - previousError);
   // PID output
   float correction = (Kp * error) + (Ki * integral) + (Kd * derivative);
   
   // Apply correction to motor speeds
-  uint16_t motorA_speed = constrain(1023 - correction, -1023, 1023);  // Motor A speed
-  uint16_t motorB_speed = constrain(1023 + correction, -1023, 1023);  // Motor B speed
+  uint16_t motorA_speed = constrain(200 - correction, 0, 200);  // Motor A speed
+  uint16_t motorB_speed = constrain(200 + correction, 0, 200);  // Motor B speed
   
   // Set motor speeds
   setMotorPWM(motorA_speed, AIN1, AIN2);  // Set motor A speed
   setMotorPWM(motorB_speed, BIN1, BIN2);  // Set motor B speed
-  
+  // Serial.print("VelA=");
+  // Serial.print(motorA_speed);
+  // Serial.println();
+  // Serial.print("VelB=");
+  // Serial.print(motorB_speed);
+  // Serial.println();
+  // Serial.print("Ki");
+  // Serial.print(Ki);
+  // Serial.println();
+  // Serial.print("Kp");
+  // Serial.print(Kp);
+  // Serial.println();
+  // Serial.print("Kd");
+  // Serial.print(Kd);
+  // Serial.println();
+  // Serial.print("Correction");
+  // Serial.print(correction);
+  // Serial.println();
   // Update variables for next loop
   previousError = error;
   lastTime = currentTime;

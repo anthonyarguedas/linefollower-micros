@@ -13,6 +13,6 @@ void calculateMaxMin();
 void calibrateLineDetector();
 uint16_t* readArrayCalibrated();
 bool isOutOfBounds();
-uint16_t getLinePosition();
+int16_t getLinePosition();
 
 #endif

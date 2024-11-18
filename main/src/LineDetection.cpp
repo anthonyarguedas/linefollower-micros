@@ -88,9 +88,9 @@ bool isOutOfBounds() {
   return true;
 }
 
-uint16_t getLinePosition() {
+int16_t getLinePosition() {
   readArrayCalibrated();
-
+  printArray(sensorValues);
   float sum = 0;
   float weightedSum = 0;
 
@@ -101,7 +101,7 @@ uint16_t getLinePosition() {
 
   float position = weightedSum / sum;
 
-  uint16_t scaledPosition = position * 1023.0;
+  int16_t scaledPosition = position * 1023.0;
 
   if (isOutOfBounds()) {
     scaledPosition = lastPosition;
