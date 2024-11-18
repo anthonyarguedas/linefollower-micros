@@ -1,5 +1,8 @@
 #include "LineDetection.h"
 
+const uint8_t sensorCount = 8;
+uint8_t sensorPins[sensorCount] = { D1, D2, D3, D4, D5, D6, D7, D8 };
+
 float weights[sensorCount] = { -1.0, -0.75, -0.50, -0.25, 0.25, 0.50, 0.75, 1.0 };
 
 uint16_t sensorValues[sensorCount];
