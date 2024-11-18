@@ -31,6 +31,26 @@ void delayNB(unsigned long time) {
     while (millis() - lastUpdateTime < time) {} // delay(time)
 }
 
+void printState(unsigned short state) {
+    switch (state) {
+      case PAUSED:
+        Serial.print("PAUSED");
+        break;
+      case FORWARD:
+        Serial.print("FORWARD");
+        break;
+      case BACKWARD:
+        Serial.print("BACKWARD");
+        break;
+      case BRAKE:
+        Serial.print("BRAKE");
+        break;
+      case FAST:
+        Serial.print("FAST");
+        break;
+    }
+}
+
 
 void setup() {
     initLineDetectorPins();
@@ -121,8 +141,9 @@ void loop() {
     int position = getLinePosition();
     delayNB(1);
     Serial.print(position);
-    Serial.print(", state: ");
-    Serial.println(state);
+    Serial.print(", ");
+    printState(state);
+    Serial.println();
     updatePID(position, state);
 
     delayNB(50);
