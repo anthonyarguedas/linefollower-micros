@@ -1,13 +1,24 @@
 #include "src/pins.h"
+#include "src/globals.h"
 #include "src/PID.h"
 #include "src/LineDetection.h"
 
 
 String command = '.';
-bool paused = false;
+unsigned short state = PAUSED;
 
-uint32_t lastUpdateTime = 0;
+unsigned long brakeTimer;
 
+unsigned short redCounter = 0;
+unsigned short greenCounter = 0;
+unsigned short blueCounter = 0;
+
+
+// Non-blocking delay
+void delayNB(unsigned long time) {
+    unsigned long lastUpdateTime = millis();
+    while (millis() - lastUpdateTime < time) {} // delay(time)
+}
 
 
 void setup() {
@@ -30,18 +41,7 @@ void setup() {
     Serial.println("Calibration done.");
     Serial.println();
 
-
-//     while (command != "s") {
-//         Serial.println("Send 's' to start line follower.");
-        
-//         while(!Serial.available()) {} // Wait for input
-
-//         command = Serial.readStringUntil('\n');
-//     }
-
-//     Serial.print("Line follower started.");
-//     Serial.println("Send 'p' to pause.");
-//     Serial.println();
+    Serial.println("Send 'r' to start line follower.");
 }
 
 void loop() {
@@ -49,21 +49,31 @@ void loop() {
         command = Serial.readStringUntil('\n');
 
         if (command == "p") {
-            Serial.println("Send 'r' to resume.");
-            paused = true;
+            Serial.print("Line follower paused.");
+            Serial.println(" Send 'r' to resume.");
+            state = PAUSED;
         } else if (command == "r") {
-            Serial.println("Send 'p' to pause.");
+            Serial.print("Line follower started.");
+            Serial.println(" Send 'p' to pause.");
             Serial.println();
-            paused = false;
-        } else {
+            if (state == PAUSED) {state = FORWARD;}
+        } else if (state == PAUSED) {
             // updatePIDParams(command);
         }
     }
 
-    if (!paused && (millis() - lastUpdateTime >= 50)) { // ms
-        int16_t position = getLinePosition();
-        delay(1);
-        Serial.println(position);
-        updatePID(position);
+    switch(state) {
+        case BRAKE:
+            break;
+        // El resto de casos se implementan igual
+        default:
+            int position = getLinePosition();
+            delayNB(1);
+            Serial.print(position);
+            Serial.print(", state: ");
+            Serial.println(state);
+            updatePID(position, state);
     }
+
+    delayNB(50);
 } 
