@@ -7,12 +7,12 @@
 
 
 void initLineDetectorPins();
-uint16_t* readArray();
-void printArray(uint16_t* values);
+unsigned int* readArray();
+void printArray(unsigned int* values);
 void calculateMaxMin();
 void calibrateLineDetector();
-uint16_t* readArrayCalibrated();
+unsigned int* readArrayCalibrated();
 bool isOutOfBounds();
-int16_t getLinePosition();
+int getLinePosition();
 
 #endif

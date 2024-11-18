@@ -1,16 +1,16 @@
 #include "LineDetection.h"
 
 
-const uint8_t sensorCount = 8;
-uint8_t sensorPins[sensorCount] = { D1, D2, D3, D4, D5, D6, D7, D8 };
+const unsigned short sensorCount = 8;
+unsigned short sensorPins[sensorCount] = { D1, D2, D3, D4, D5, D6, D7, D8 };
 
 float weights[sensorCount] = { -1.0, -0.75, -0.50, -0.25, 0.25, 0.50, 0.75, 1.0 };
 
-uint16_t sensorValues[sensorCount];
-uint16_t minValues[sensorCount] = { 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023 };
-uint16_t maxValues[sensorCount] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+unsigned int sensorValues[sensorCount];
+unsigned int minValues[sensorCount] = { 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023 };
+unsigned int maxValues[sensorCount] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
-uint16_t lastPosition = 0;
+unsigned int lastPosition = 0;
 
 
 void initLineDetectorPins() {
@@ -19,7 +19,7 @@ void initLineDetectorPins() {
   }
 }
 
-uint16_t* readArray() {
+unsigned int* readArray() {
   for (int i = 0; i < sensorCount; i++) {
     sensorValues[i] = analogRead(sensorPins[i]);
   }
@@ -27,7 +27,7 @@ uint16_t* readArray() {
   return sensorValues;
 }
 
-void printArray(uint16_t* values) {
+void printArray(unsigned int* values) {
   for (int i = 0; i < sensorCount; i++) {
     Serial.print(values[i]);
     Serial.print(" ");
@@ -51,7 +51,7 @@ void calculateMaxMin() {
 }
 
 void calibrateLineDetector() {
-  uint32_t startTime = millis();
+  unsigned long startTime = millis();
   Serial.println("Calibration started.");
   // Calibrate for 10 s
   while (millis() - startTime < 10000) {
@@ -65,7 +65,7 @@ void calibrateLineDetector() {
   printArray(minValues);
 }
 
-uint16_t* readArrayCalibrated() {
+unsigned int* readArrayCalibrated() {
   readArray();
 
   for (int i = 0; i < sensorCount; i++) {
@@ -88,7 +88,7 @@ bool isOutOfBounds() {
   return true;
 }
 
-int16_t getLinePosition() {
+int getLinePosition() {
   readArrayCalibrated();
   printArray(sensorValues);
   float sum = 0;
@@ -101,7 +101,7 @@ int16_t getLinePosition() {
 
   float position = weightedSum / sum;
 
-  int16_t scaledPosition = position * 1023.0;
+  int scaledPosition = position * 1023.0;
 
   if (isOutOfBounds()) {
     scaledPosition = lastPosition;

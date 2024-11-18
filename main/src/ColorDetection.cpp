@@ -1,10 +1,10 @@
 #include "ColorDetection.h"
 
 
-void getColorCode(uint8_t *colorCode) {
+void getColorCode(unsigned short *colorCode) {
   float red, green, blue;
 
-  uint32_t t0 = millis();
+  unsigned long t0 = millis();
   while(millis() - t0 < 60);  // takes 50ms to read
 
   tcs.getRGB(&red, &green, &blue);
@@ -26,7 +26,7 @@ void getColorCode(uint8_t *colorCode) {
   }
 }
 
-void printColorCode(uint8_t colorCode) {
+void printColorCode(unsigned short colorCode) {
     switch (colorCode) {
         case OTHER_COLOR:
             Serial.print("OTHER_COLOR");

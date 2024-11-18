@@ -5,11 +5,11 @@ float Kp = 5.5;  // Proportional gain
 float Ki = 0;  // Integral gain
 float Kd = 10;  // Derivative gain
 
-int16_t targetPosition = 0;  // Target position (centered on the line)
+int targetPosition = 0;  // Target position (centered on the line)
 
 float previousError = 0;
 float integral = 0;
-uint32_t lastTime = 0;
+unsigned long lastTime = 0;
 
 void initMotorPins() {
   pinMode(AIN1, OUTPUT);
@@ -43,7 +43,7 @@ void initMotorPins() {
 }
 
 // Function to set motor speeds
-void setMotorPWM(uint16_t pwm, uint8_t IN1_PIN, uint8_t IN2_PIN) {
+void setMotorPWM(unsigned int pwm, unsigned short IN1_PIN, unsigned short IN2_PIN) {
   if (pwm < 0) {  // Reverse speeds
     analogWrite(IN2_PIN, -pwm);
     digitalWrite(IN1_PIN, LOW);
@@ -60,9 +60,9 @@ void turnMotorsOff() {
   digitalWrite(BIN2, LOW);
 }
 
-void updatePID(int16_t position) {
+void updatePID(int position, unsigned short state) {
   // Calculate PID control output
-  uint32_t currentTime = millis();
+  unsigned long currentTime = millis();
   float deltaTime = (currentTime - lastTime) / 1000.0;  // Time difference in seconds
   
   // Proportional term
@@ -81,8 +81,8 @@ void updatePID(int16_t position) {
   float correction = (Kp * error) + (Ki * integral) + (Kd * derivative);
   
   // Apply correction to motor speeds
-  uint16_t motorA_speed = constrain(200 - correction, 0, 200);  // Motor A speed
-  uint16_t motorB_speed = constrain(200 + correction, 0, 200);  // Motor B speed
+  unsigned int motorA_speed = constrain(200 - correction, 0, 200);  // Motor A speed
+  unsigned int motorB_speed = constrain(200 + correction, 0, 200);  // Motor B speed
   
   // Set motor speeds
   setMotorPWM(motorA_speed, AIN1, AIN2);  // Set motor A speed

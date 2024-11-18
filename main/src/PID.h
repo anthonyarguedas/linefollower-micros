@@ -4,11 +4,11 @@
 #include "Arduino.h"
 
 #include "pins.h"
-
+#include "globals.h"
 
 void initMotorPins();
-void setMotorPWM(uint16_t pwm, uint8_t IN1_PIN, uint8_t IN2_PIN);
-void updatePID(int16_t position);
+void setMotorPWM(unsigned int pwm, unsigned short IN1_PIN, unsigned short IN2_PIN);
+void updatePID(int position, unsigned short state);
 void updatePIDParams(String &input);
 void turnMotorsOff(); 
 
