@@ -23,6 +23,9 @@ unsigned short blueCounter = 0;
 // Orden: RED, GREEN, BLUE
 unsigned short colorStates[3] = {BACKWARD, FAST, BRAKE};
 
+unsigned short colorCode;
+int position;
+
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
 
 
@@ -106,9 +109,7 @@ void loop() {
             if (millis() - brakeTimer >= 10000) {state = FORWARD;}
             break;
         default:
-            unsigned short colorCode;
             getColorCode(&colorCode);
-            printColorCode(colorCode);
 
             switch(colorCode) {
                 case BLACK:
@@ -150,10 +151,11 @@ void loop() {
         case PAUSED:
             break;
         default:
-            int position = getLinePosition();
+            position = getLinePosition();
             delayNB(1);
-            Serial.print(", ");
             Serial.print(position);
+            Serial.print(", ");
+            printColorCode(colorCode);
             Serial.print(", ");
             printState(state);
             Serial.println();
