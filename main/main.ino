@@ -112,10 +112,8 @@ void loop() {
             getColorCode(&colorCode);
 
             switch(colorCode) {
-                case BLACK:
-                    state = FORWARD;
-                    break;
                 case OTHER_COLOR:
+                    if (!isOutOfBoundsRead()) {state = FORWARD;}
                     break;
                 default:
                     switch(colorStates[colorCode]) {
@@ -145,7 +143,7 @@ void loop() {
     }
 
 
-    
+
     /*** Controlar motores según la posición y el estado ***/
     switch (state) {
         case PAUSED:
