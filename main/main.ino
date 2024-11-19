@@ -183,6 +183,10 @@ void loop() {
 
             if (colorCode != lastColorCode) {
                 if (backwardLock > 0) {backwardLock--;}
+                if (colorCode != OTHER_COLOR) {
+                  colorCounters[colorCode]++;
+                  txAvailable = true;
+                }
             }
             lastColorCode = colorCode;
 
@@ -217,9 +221,6 @@ void loop() {
                             }
                             break;
                     }
-
-                    colorCounters[colorCode]++;
-                    txAvailable = true;
             }
     }
     // TODO: Remove
@@ -266,9 +267,9 @@ void loop() {
     Serial.println();
     updatePID(position, state);
 
-    if (txAvailable) {
+    if (txAvailable == true) {
         for (int i=0; i<3; i++) {
-            Serial.write(colorCounters[i]);
+            Serial2.write(colorCounters[i]);
         }
         txAvailable = false;
     }
