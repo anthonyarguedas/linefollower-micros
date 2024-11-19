@@ -77,7 +77,8 @@ void UARTRXISR() {
     rxAvailable = true;
 }
 
-void UARTRead() {
+bool UARTRead() {
+  if (Serial2.available() >= 7) {
     // Leer los 7 bytes recibidos
     unsigned short byte1 = Serial2.read();
     unsigned int kp_raw = (Serial2.read() << 8) | Serial2.read(); // Bytes 2 y 3
@@ -120,6 +121,11 @@ void UARTRead() {
         brakeLock = 1;
         backwardLock = 1;
     }
+
+    return false;
+  } else {
+    return true;
+  }
 }
 
 
@@ -148,10 +154,7 @@ void setup() {
 
 void loop() {
     if (rxAvailable == true) {
-        if (Serial2.available() >= 7) {
-            UARTRead();
-            rxAvailable = false;
-        }
+      rxAvailable = UARTRead();
     }
 
     // TODO: Remove line below only
