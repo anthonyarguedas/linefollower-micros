@@ -9,7 +9,7 @@
 void initMotorPins();
 void setMotorPWM(int pwm, unsigned short IN1_PIN, unsigned short IN2_PIN);
 void updatePID(int position, unsigned short state);
-void updatePIDParams(String &input);
+void updatePIDParams(float newKp, float newKd, float newKi);
 void turnMotorsOff(); 
 
 #endif // PID_H
