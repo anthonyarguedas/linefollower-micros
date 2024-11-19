@@ -106,6 +106,13 @@ void loop() {
         case PAUSED:
             break;
         case BACKWARD:
+            getColorCode(&colorCode);
+
+            if (colorCode != lastColorCode) {
+                backwardLock++;
+            }
+            lastColorCode = colorCode;
+            
             if (millis() - backwardTimer >= 3000) {state = FORWARD;}
             break;
         case BRAKE:
@@ -129,25 +136,25 @@ void loop() {
                 default:
                     switch(colorStates[colorCode]) {
                         case FAST:
-                            state = FAST;
-                            backwardLock = 0;
-                            brakeLock = 0;
+                            if (backwardLock == 0) {
+                                state = FAST;
+                                brakeLock = 0;
+                            }
                             break;
                         case BRAKE:
-                            if (brakeLock == 0) {
+                            if (brakeLock == 0 && backwardLock == 0) {
                                 state = BRAKE;
                                 brakeLock = 1;
                                 brakeTimer = millis();
                             }
-                            backwardLock = 0;
                             break;
                         case BACKWARD:
                             if (backwardLock == 0) {
                                 state = BACKWARD;
-                                backwardLock = 3;
+                                backwardLock = 1;
                                 backwardTimer = millis();
+                                brakeLock = 0;
                             }
-                            brakeLock = 0;
                             break;
                     }
 
@@ -155,8 +162,6 @@ void loop() {
             }
     }
 
-
- 
     /*** Controlar motores según la posición y el estado ***/
     switch (state) {
         case PAUSED:
@@ -168,11 +173,11 @@ void loop() {
             Serial.print(", ");
             printColorCode(colorCode);
             Serial.print(", ");
-            printState(state);
-            Serial.println();
-            updatePID(position, state);
     }
 
+    printState(state);
+    Serial.println();
+    updatePID(position, state);
 
     delayNB(50);
 } 
