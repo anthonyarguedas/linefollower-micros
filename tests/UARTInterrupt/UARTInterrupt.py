@@ -1,7 +1,8 @@
 import serial
 import time
 
-ser = serial.Serial('/dev/ttyS0', baudrate=115200, timeout=1)
+# TX: 14, RX: 15
+ser = serial.Serial('/dev/serial0', baudrate=115200, timeout=1)
 
 if ser.is_open:
     print("Serial port is open")
