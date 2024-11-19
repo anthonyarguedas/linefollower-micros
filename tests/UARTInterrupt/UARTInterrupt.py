@@ -98,7 +98,7 @@ def send_data():
     print("Datos enviados:", data_to_send)
 
     GPIO.output(18, GPIO.HIGH)
-    root.after(1, lambda: GPIO.output(18, GPIO.LOW))
+    root.after(10, lambda: GPIO.output(18, GPIO.LOW))
 
 def receive_data():
     """
