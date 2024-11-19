@@ -1,6 +1,7 @@
 // Serial2
 #define TX 8
 #define RX 7
+#define SIGNAL 9
 
 bool rxAvailable = false;
 
@@ -11,7 +12,8 @@ void UARTRXISR() {
 void setup() {
     Serial.begin(115200);
     Serial2.begin(115200);
-    attachInterrupt(digitalPinToInterrupt(RX), UARTRXISR, RISING);
+    pinMode(SIGNAL, INPUT);
+    attachInterrupt(digitalPinToInterrupt(SIGNAL), UARTRXISR, RISING);
 }
 
 void loop() {

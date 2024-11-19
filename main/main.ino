@@ -128,6 +128,8 @@ void setup() {
     initMotorPins();
     tcs.begin();
 
+    pinMode(SIGNAL, INPUT);
+
     Serial2.begin(115200);
     attachInterrupt(digitalPinToInterrupt(SIGNAL), UARTRXISR, RISING);
 
