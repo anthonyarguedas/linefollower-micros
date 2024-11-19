@@ -9,7 +9,7 @@ const unsigned long interval = 1000; // Intervalo de 1 segundo
 
 void setup() {
   Serial.begin(9600);   // Monitor serial
-  Serial2.begin(9600);  // UART en Serial2
+  Serial2.begin(115200);  // UART en Serial2
 }
 
 void loop() {
