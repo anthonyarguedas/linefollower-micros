@@ -74,7 +74,7 @@ void printState(unsigned short state) {
 }
 
 void UARTRXISR() {
-    rxAvailable = true;
+    if (Serial2.available() >= 7) {rxAvailable = true;}
 }
 
 void UARTRead() {
@@ -129,7 +129,7 @@ void setup() {
     tcs.begin();
 
     Serial2.begin(115200);
-    attachInterrupt(digitalPinToInterrupt(RX), UARTRXISR, FALLING);
+    attachInterrupt(digitalPinToInterrupt(RX), UARTRXISR, RISING);
 
     /*
     Serial2.println("Calibration started.");
