@@ -5,7 +5,6 @@
 
 #include "pins.h"
 
-
 void initLineDetectorPins();
 unsigned int* readArray();
 void printArray(unsigned int* values);

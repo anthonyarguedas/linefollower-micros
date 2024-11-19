@@ -104,7 +104,9 @@ def receive_data():
     """
     Leer datos desde UART.
     """
-    if uart.in_waiting >= 3:  # Esperar a tener al menos 3 bytes
+    #if uart.in_waiting >= 3:  # Esperar a tener al menos 3 bytes
+    # TODO: Remove
+    if uart.in_waiting >= 6:
         # Leer contadores
         contador_rojo = int.from_bytes(uart.read(1), byteorder='big')
         contador_verde = int.from_bytes(uart.read(1), byteorder='big')
@@ -114,6 +116,36 @@ def receive_data():
         rojo_counter_label.config(text=f"Contador Rojo: {contador_rojo}")
         verde_counter_label.config(text=f"Contador Verde: {contador_verde}")
         azul_counter_label.config(text=f"Contador Azul: {contador_azul}")
+
+        # TODO: Remove
+        estado = int.from_bytes(uart.read(1), byteorder='big')
+        estado_calibracion = int.from_bytes(uart.read(1), byteorder='big')
+        color_actual = int.from_bytes(uart.read(1), byteorder='big')
+
+        estados = {
+            0: "PAUSED",
+            1: "FORWARD",
+            2: "FAST",
+            3: "BACKWARD",
+            4: "BRAKE"
+        }
+
+        estados_calibracion = {
+            0: "UNCALIBRATED",
+            1: "CALIBRATING",
+            2: "CALIBRATED"
+        }
+
+        colores = {
+            0: "RED",
+            1: "GREEN",
+            2: "BLUE",
+            3: "OTHER_COLOR"
+        }
+
+        print(f"Estado: {estados[estado]}")
+        print(f"Calibración: {estados_calibracion[estado_calibracion]}")
+        print(f"Color: {colores[color_actual]}\n")
 
     # Llamar nuevamente después de 100 ms
     root.after(100, receive_data)

@@ -12,6 +12,7 @@
 //#define USE_COLOR
 
 unsigned short state = PAUSED;
+unsigned short calibrationState = UNCALIBRATED;
 
 unsigned long brakeTimer;
 unsigned long backwardTimer;
@@ -128,6 +129,16 @@ bool UARTRead() {
   }
 }
 
+void UARTWrite() {
+    for (int i=0; i<3; i++) {
+        Serial2.write(colorCounters[i]);
+    }
+    // TODO: Remove
+    Serial2.write(state);
+    Serial2.write(calibrationState);
+    Serial2.write(colorCode);
+}
+
 
 void setup() {
     initLineDetectorPins();
@@ -139,12 +150,11 @@ void setup() {
     pinMode(SIGNAL, INPUT);
     attachInterrupt(digitalPinToInterrupt(SIGNAL), UARTRXISR, RISING);
 
-    /*
-    Serial2.println("Calibration started.");
+    calibrationState = CALIBRATING;
+    UARTWrite();
     calibrateLineDetector();
-    Serial2.println("Calibration done.");
-    Serial2.println();
-    */
+    calibrationState = CALIBRATED;
+    UARTWrite();
   
     // TODO: Remove
     #ifndef USE_COLOR
@@ -268,10 +278,12 @@ void loop() {
     updatePID(position, state);
 
     if (txAvailable == true) {
-        for (int i=0; i<3; i++) {
-            Serial2.write(colorCounters[i]);
-        }
+        UARTWrite();
         txAvailable = false;
+    }
+    // TODO: Remove
+    else {
+        UARTWrite();
     }
 
     delayNB(10);

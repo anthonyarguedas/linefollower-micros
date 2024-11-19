@@ -8,6 +8,11 @@
 #define BACKWARD 3 
 #define BRAKE 4
 
+// Estados de calibración
+#define UNCALIBRATED 0
+#define CALIBRATING 1
+#define CALIBRATED 2
+
 // Colores
 #define RED 0
 #define GREEN 1
