@@ -1,9 +1,11 @@
+#include <Adafruit_TCS34725.h>
+#include <Arduino.h>
+
 #include "src/pins.h"
 #include "src/globals.h"
 #include "src/PID.h"
 #include "src/LineDetection.h"
 #include "src/ColorDetection.h"
-#include <Adafruit_TCS34725.h>
 #include "src/ReverseBuffer.h"
 
 // TODO: Remove
@@ -31,7 +33,13 @@ unsigned short lastColorCode = OTHER_COLOR;
 unsigned short colorCode;
 int position;
 
+// Dirección de giro ante una bifurcación
+unsigned short turnDirection = LEFT;
+
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
+
+volatile bool rxAvailable = false;
+bool txAvailable = true;
 
 // TODO: Remove
 #ifndef USE_COLOR
@@ -65,27 +73,83 @@ void printState(unsigned short state) {
     }
 }
 
+void UARTRXISR() {
+    rxAvailable = true;
+}
+
+void UARTRead() {
+    // Leer los 7 bytes recibidos
+    unsigned short byte1 = Serial2.read();
+    unsigned int kp_raw = (Serial2.read() << 8) | Serial2.read(); // Bytes 2 y 3
+    unsigned int ki_raw = (Serial2.read() << 8) | Serial2.read(); // Bytes 4 y 5
+    unsigned int kd_raw = (Serial2.read() << 8) | Serial2.read(); // Bytes 6 y 7
+
+    // Convertir a valores decimales (dividir por 100)
+    float kp = kp_raw / 100.0;
+    float ki = ki_raw / 100.0;
+    float kd = kd_raw / 100.0;
+
+    updatePIDParams(kp, kd, ki);
+
+    // Extraer las secciones del byte1
+    unsigned short redState = (byte1 & 0b00110000) >> 4;     // Bits 3 y 4
+    unsigned short greenState = (byte1 & 0b00001100) >> 2;    // Bits 5 y 6
+    unsigned short blueState = (byte1 & 0b00000011);          // Bits 7 y 8
+    
+    unsigned short newColorStates[3] = {redState, greenState, blueState};
+
+    for (int i=0; i<3; i++) {
+        switch (newColorStates[i]) {
+            case 0: colorStates[i] = BRAKE; break;
+            case 1: colorStates[i] = FAST; break;
+            case 2: colorStates[i] = BACKWARD; break;
+        }
+    }
+
+    turnDirection = (byte1 & 0b01000000) >> 6;       // Bit 2
+    bool activate = (byte1 & 0b10000000) >> 7;  // Bit 1
+
+    if (activate) {
+        state = FORWARD;
+        // TODO: Remove
+        #ifndef USE_COLOR
+        timer = millis();
+        #endif
+    } else {
+        state = PAUSED;
+        brakeLock = 1;
+        backwardLock = 1;
+    }
+}
+
 
 void setup() {
     initLineDetectorPins();
     initMotorPins();
     tcs.begin();
 
-    Serial.begin(115200);
+    Serial2.begin(115200);
+    attachInterrupt(digitalPinToInterrupt(0), UARTRXISR, FALLING);
 
-    Serial.println("Calibration started.");
+    /*
+    Serial2.println("Calibration started.");
     calibrateLineDetector();
-    Serial.println("Calibration done.");
-    Serial.println();
+    Serial2.println("Calibration done.");
+    Serial2.println();
+    */
   
     // TODO: Remove
     #ifndef USE_COLOR
-    state = FORWARD;
     timer = millis();
     #endif
 }
 
 void loop() {
+    if (rxAvailable == true) {
+        UARTRead();
+        rxAvailable = false;
+    }
+
     // TODO: Remove line below only
     #ifdef USE_COLOR
     switch(state) {
@@ -148,6 +212,7 @@ void loop() {
                     }
 
                     colorCounters[colorCode]++;
+                    txAvailable = true;
             }
     }
     // TODO: Remove
@@ -194,5 +259,12 @@ void loop() {
     Serial.println();
     updatePID(position, state);
 
-    delayNB(50);
+    if (txAvailable) {
+        for (int i=0; i<3; i++) {
+            Serial.write(colorCounters[i]);
+        }
+        txAvailable = false;
+    }
+
+    delayNB(10);
 } 
