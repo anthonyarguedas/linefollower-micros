@@ -4,9 +4,11 @@
 #include "src/LineDetection.h"
 #include "src/ColorDetection.h"
 #include <Adafruit_TCS34725.h>
+#include "src/ReverseBuffer.h"
 
+// TODO: Remove
+//#define USE_COLOR
 
-String command = '.';
 unsigned short state = PAUSED;
 
 unsigned long brakeTimer;
@@ -30,6 +32,11 @@ unsigned short colorCode;
 int position;
 
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
+
+// TODO: Remove
+#ifndef USE_COLOR
+unsigned long timer;
+#endif
 
 
 // Non-blocking delay
@@ -66,42 +73,21 @@ void setup() {
 
     Serial.begin(115200);
 
-
-    // while (command != "c") {
-    //     Serial.println("Send 'c' to begin calibration.");
-        
-    //     while(!Serial.available()) {} // Wait for input
-
-    //     command = Serial.readStringUntil('\n');
-    // }
-
     Serial.println("Calibration started.");
     calibrateLineDetector();
     Serial.println("Calibration done.");
     Serial.println();
-
-    Serial.println("Send 'r' to start line follower.");
+  
+    // TODO: Remove
+    #ifndef USE_COLOR
+    state = FORWARD;
+    timer = millis();
+    #endif
 }
 
 void loop() {
-    /*** Actualizar estado ***/
-    if (Serial.available()) {
-        command = Serial.readStringUntil('\n');
-
-        if (command == "p") {
-            Serial.print("Line follower paused.");
-            Serial.println(" Send 'r' to resume.");
-            state = PAUSED;
-        } else if (command == "r") {
-            Serial.print("Line follower started.");
-            Serial.println(" Send 'p' to pause.");
-            Serial.println();
-            if (state == PAUSED) {state = FORWARD;}
-        } else if (state == PAUSED) {
-            // updatePIDParams(command);
-        }
-    }
-
+    // TODO: Remove line below only
+    #ifdef USE_COLOR
     switch(state) {
         case PAUSED:
             break;
@@ -113,7 +99,10 @@ void loop() {
             }
             lastColorCode = colorCode;
             
-            if (millis() - backwardTimer >= 3000) {state = FORWARD;}
+            if (millis() - backwardTimer >= 3000) {
+                state = FORWARD;
+                refreshBuffer();
+            }
             break;
         case BRAKE:
             if (millis() - brakeTimer >= 10000) {state = FORWARD;}
@@ -161,18 +150,44 @@ void loop() {
                     colorCounters[colorCode]++;
             }
     }
+    // TODO: Remove
+    #else
+    if (millis() - timer >= 3000) {
+        if (state == BACKWARD) {
+            state = FORWARD;
+            refreshBuffer();
+            timer = millis();
+        } else if (state == FORWARD) {
+            if (millis() - timer >= 3500) {
+                state = BACKWARD;
+                timer = millis();
+            }
+        }
+    }
+    #endif
 
     /*** Controlar motores según la posición y el estado ***/
     switch (state) {
         case PAUSED:
             break;
+        case BRAKE:
+            break;
+        case BACKWARD:
+            position = readBuffer();
+            delayNB(1);
+            Serial.print(position);
+            Serial.print(", ");
+            break;
+        case FORWARD:
+            printColorCode(colorCode);
+            Serial.print(", ");
+            // Sin break para poder entrar al default
         default:
             position = getLinePosition();
             delayNB(1);
             Serial.print(position);
             Serial.print(", ");
-            printColorCode(colorCode);
-            Serial.print(", ");
+            writeBuffer(position);
     }
 
     printState(state);

@@ -1,11 +1,14 @@
 #include "PID.h"
 
 
-float Kp = 5.5;  // Proportional gain
+
+float Kp = 10;  // Proportional gain
 float Ki = 0;  // Integral gain
-float Kd = 10;  // Derivative gain
+float Kd = 0;  // Derivative gain
 
 int targetPosition = 0;  // Target position (centered on the line)
+
+int Speed = 215;
 
 float previousError = 0;
 float integral = 0;
@@ -43,7 +46,7 @@ void initMotorPins() {
 }
 
 // Function to set motor speeds
-void setMotorPWM(unsigned int pwm, unsigned short IN1_PIN, unsigned short IN2_PIN) {
+void setMotorPWM(int pwm, unsigned short IN1_PIN, unsigned short IN2_PIN) {
   if (pwm < 0) {  // Reverse speeds
     analogWrite(IN2_PIN, -pwm);
     digitalWrite(IN1_PIN, LOW);
@@ -81,12 +84,40 @@ void updatePID(int position, unsigned short state) {
   float correction = (Kp * error) + (Ki * integral) + (Kd * derivative);
   
   // Apply correction to motor speeds
-  unsigned int motorA_speed = constrain(200 - correction, 0, 200);  // Motor A speed
-  unsigned int motorB_speed = constrain(200 + correction, 0, 200);  // Motor B speed
+  unsigned int motorA_speed = constrain(Speed - correction, 0, Speed);  // Motor A speed
+  unsigned int motorB_speed = constrain(Speed + correction, 0, Speed);  // Motor B speed
   
   // Set motor speeds
-  setMotorPWM(motorA_speed, AIN1, AIN2);  // Set motor A speed
-  setMotorPWM(motorB_speed, BIN1, BIN2);  // Set motor B speed
+
+     switch(state) {
+        case FORWARD:
+        Speed = 215;
+        setMotorPWM(motorA_speed, AIN1, AIN2);  // Set motor A speed
+        setMotorPWM(motorB_speed, BIN1, BIN2);  // Set motor B speed
+            break;
+        case BACKWARD:
+        Speed = 215;
+        setMotorPWM(-motorA_speed, AIN1, AIN2);  // Set motor A speed
+        setMotorPWM(-motorB_speed, BIN1, BIN2);  // Set motor B speed
+            break;
+        case BRAKE:
+        Speed = 0;
+        setMotorPWM(motorA_speed, AIN1, AIN2);  // Set motor A speed
+        setMotorPWM(motorB_speed, BIN1, BIN2);  // Set motor B speed
+            break;
+        case PAUSED:
+          Speed = 0;
+          setMotorPWM(motorA_speed, AIN1, AIN2);  // Set motor A speed
+          setMotorPWM(motorB_speed, BIN1, BIN2);  // Set motor B speed
+          break;
+        case FAST:
+        Speed = 235;
+        setMotorPWM(motorA_speed, AIN1, AIN2);  // Set motor A speed
+        setMotorPWM(motorB_speed, BIN1, BIN2);  // Set motor B speed
+            break;
+     }
+        
+  
   // Serial.print("VelA=");
   // Serial.print(motorA_speed);
   // Serial.println();
@@ -109,6 +140,7 @@ void updatePID(int position, unsigned short state) {
   previousError = error;
   lastTime = currentTime;
 }
+
 
 
 void updatePIDParams(String &input) {

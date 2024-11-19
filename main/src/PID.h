@@ -7,7 +7,7 @@
 #include "globals.h"
 
 void initMotorPins();
-void setMotorPWM(unsigned int pwm, unsigned short IN1_PIN, unsigned short IN2_PIN);
+void setMotorPWM(int pwm, unsigned short IN1_PIN, unsigned short IN2_PIN);
 void updatePID(int position, unsigned short state);
 void updatePIDParams(String &input);
 void turnMotorsOff(); 

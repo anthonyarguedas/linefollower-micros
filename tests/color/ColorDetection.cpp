@@ -1,5 +1,12 @@
 #include "ColorDetection.h"
 
+uint8_t expectedRed[3] = {137, 68, 47};
+uint8_t expectedGreen[3] = {73, 115, 55};
+uint8_t expectedBlue[3] = {62, 82, 103};
+
+uint8_t* expectedColors[AMOUNT_OF_COLORS] = {expectedRed, expectedGreen, expectedBlue};
+uint8_t colorCodes[AMOUNT_OF_COLORS] = {RED, GREEN, BLUE};
+
 
 uint8_t expectedRed[3] = {137, 68, 47};
 uint8_t expectedGreen[3] = {73, 115, 55};
@@ -11,6 +18,13 @@ uint8_t colorCodes[AMOUNT_OF_COLORS] = {RED, GREEN, BLUE};
 
 void getColorCode(uint8_t *colorCode) {
   float red, green, blue;
+
+  Serial.print("R: ");
+  Serial.print(red);
+  Serial.print(" G: ");
+  Serial.print(green);
+  Serial.print(" B: ");
+  Serial.println(blue);
 
   uint32_t t0 = millis();
   while(millis() - t0 < 60);  // takes 50ms to read
