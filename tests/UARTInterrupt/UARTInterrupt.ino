@@ -6,6 +6,7 @@
 bool rxAvailable = false;
 
 void UARTRXISR() {
+    Serial.println(Serial2.available());
     if (Serial2.available() >= 2) {rxAvailable = true;}
 }
 
@@ -18,8 +19,9 @@ void setup() {
 
 void loop() {
     if (rxAvailable) {
+        Serial.println("available");
         unsigned short byte1 = Serial2.read();
-        Serial.println(byte);
+        Serial.println(byte1);
         unsigned short byte2 = Serial2.read();
         Serial.println(byte2);
         Serial.println();
