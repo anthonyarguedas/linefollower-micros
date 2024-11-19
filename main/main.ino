@@ -2,6 +2,7 @@
 #include "src/globals.h"
 #include "src/PID.h"
 #include "src/LineDetection.h"
+#include "src/ReverseBuffer.h"
 
 
 String command = '.';
@@ -63,7 +64,16 @@ void loop() {
     }
 
     switch(state) {
+        case BACKWARD:
+            int position = readBuffer();
+            Serial.print("state: ");
+            Serial.println(state);
+            updatePID(position, state);
+            break;
         case BRAKE:
+            Serial.print("state: ");
+            Serial.println(state);
+            updatePID(position, state);
             break;
         // El resto de casos se implementan igual
         default:
@@ -73,6 +83,7 @@ void loop() {
             Serial.print(", state: ");
             Serial.println(state);
             updatePID(position, state);
+            writeBuffer(position);
     }
 
     delayNB(50);
