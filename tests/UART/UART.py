@@ -12,8 +12,8 @@ uart = serial.Serial(
 )
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(16, GPIO.OUT)
-GPIO.output(16, GPIO.LOW)
+GPIO.setup(18, GPIO.OUT)
+GPIO.output(18, GPIO.LOW)
 
 
 def create_data(byte1, kp, ki, kd):
@@ -97,8 +97,8 @@ def send_data():
 
     print("Datos enviados:", data_to_send)
 
-    GPIO.output(16, GPIO.HIGH)
-    root.after(1, lambda: GPIO.output(16, GPIO.LOW))
+    GPIO.output(18, GPIO.HIGH)
+    root.after(1, lambda: GPIO.output(18, GPIO.LOW))
 
 def receive_data():
     """
