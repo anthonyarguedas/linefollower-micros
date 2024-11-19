@@ -9,11 +9,11 @@ byte contador_azul = 0;
 unsigned long previousMillis = 0; // Tiempo anterior
 const unsigned long interval = 1000; // Intervalo de 1 segundo
 
-bool rxAvailable() = false;
+bool rxAvailable = false;
 
 
 void UARTRXISR() {
-    rxAvailable = true;
+  if (Serial2.available() >= 7) {rxAvailable = true;}
 }
 
 
