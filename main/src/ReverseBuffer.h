@@ -4,7 +4,7 @@
 #define BUFFER_SIZE 350
 
 void writeBuffer(int value);
-int writeBuffer();
+int readBuffer();
 void refreshBuffer();
 
 #endif // REVERSE_BUFFER_H

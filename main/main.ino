@@ -16,6 +16,8 @@ unsigned short blueCounter = 0;
 
 unsigned long timer;
 
+int position;
+
 // Non-blocking delay
 void delayNB(unsigned long time) {
     unsigned long lastUpdateTime = millis();
@@ -43,13 +45,14 @@ void setup() {
     Serial.println("Calibration done.");
     Serial.println();
 
-    Serial.println("Send 'r' to start line follower.");
+    state = FORWARD;
+    timer = millis();
 }
 
 void loop() {
     if (millis() - timer >= 3000) {
-        if (state == BACKWARD) {
-            state = FORWARD;
+        if (state == PAUSED) {
+            state = BACKWARD;
             timer = millis();
             refreshBuffer();
         } else if (state == FORWARD) {
@@ -61,9 +64,15 @@ void loop() {
     }
 
     switch(state) {
-        case BACKWARD:
-            int position = readBuffer();
+        case PAUSED:
             Serial.print("state: ");
+            Serial.println(state);
+            updatePID(position, state);
+            break;
+        case BACKWARD:
+            position = readBuffer();
+            Serial.print(position);
+            Serial.print(", state: ");
             Serial.println(state);
             updatePID(position, state);
             break;
@@ -74,7 +83,7 @@ void loop() {
             break;
         // El resto de casos se implementan igual
         default:
-            int position = getLinePosition();
+            position = getLinePosition();
             delayNB(1);
             Serial.print(position);
             Serial.print(", state: ");

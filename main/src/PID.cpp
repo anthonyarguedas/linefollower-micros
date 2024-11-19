@@ -96,7 +96,7 @@ void updatePID(int position, unsigned short state) {
         setMotorPWM(motorB_speed, BIN1, BIN2);  // Set motor B speed
             break;
         case BACKWARD:
-        Speed = 195;
+        Speed = 215;
         setMotorPWM(-motorA_speed, AIN1, AIN2);  // Set motor A speed
         setMotorPWM(-motorB_speed, BIN1, BIN2);  // Set motor B speed
             break;
@@ -105,6 +105,11 @@ void updatePID(int position, unsigned short state) {
         setMotorPWM(motorA_speed, AIN1, AIN2);  // Set motor A speed
         setMotorPWM(motorB_speed, BIN1, BIN2);  // Set motor B speed
             break;
+        case PAUSED:
+          Speed = 0;
+          setMotorPWM(motorA_speed, AIN1, AIN2);  // Set motor A speed
+          setMotorPWM(motorB_speed, BIN1, BIN2);  // Set motor B speed
+          break;
         case FAST:
         Speed = 235;
         setMotorPWM(motorA_speed, AIN1, AIN2);  // Set motor A speed

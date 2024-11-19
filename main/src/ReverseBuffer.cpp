@@ -2,29 +2,29 @@
 
 
 int reverseBuffer[BUFFER_SIZE];
-int index = 0;
+int bufferIndex = 0;
 
 
 void writeBuffer(int value) {
-    reverseBuffer[index] = value;
+    reverseBuffer[bufferIndex] = value;
 
-    if (index < BUFFER_SIZE - 1) {
-        index++;
+    if (bufferIndex < BUFFER_SIZE - 1) {
+        bufferIndex++;
     } else {
-        index = 0;
+        bufferIndex = 0;
     }
 }
 
 int readBuffer() {
-    if (index > 0) {
-        index--;
+    if (bufferIndex > 0) {
+        bufferIndex--;
     } else {
-        index = BUFFER_SIZE - 1;
+        bufferIndex = BUFFER_SIZE - 1;
     }
 
-    return reverseBuffer[index];
+    return reverseBuffer[bufferIndex];
 }
 
 void refreshBuffer() {
-    index = 0;
+    bufferIndex = 0;
 }
