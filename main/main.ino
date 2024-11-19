@@ -129,7 +129,7 @@ void setup() {
     tcs.begin();
 
     Serial2.begin(115200);
-    attachInterrupt(digitalPinToInterrupt(0), UARTRXISR, FALLING);
+    attachInterrupt(digitalPinToInterrupt(RX), UARTRXISR, FALLING);
 
     /*
     Serial2.println("Calibration started.");
