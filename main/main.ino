@@ -14,6 +14,7 @@ unsigned short redCounter = 0;
 unsigned short greenCounter = 0;
 unsigned short blueCounter = 0;
 
+unsigned long timer;
 
 // Non-blocking delay
 void delayNB(unsigned long time) {
@@ -47,7 +48,16 @@ void setup() {
 
 void loop() {
     if (millis() - timer >= 3000) {
-        if (state == FORWARD)
+        if (state == BACKWARD) {
+            state = FORWARD;
+            timer = millis();
+            refreshBuffer();
+        } else if (state == FORWARD) {
+            if (millis() - timer >= 3500) {
+                state = BACKWARD;
+                timer = millis();
+            }
+        }
     }
 
     switch(state) {
