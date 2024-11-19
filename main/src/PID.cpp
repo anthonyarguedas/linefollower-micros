@@ -142,27 +142,8 @@ void updatePID(int position, unsigned short state) {
 }
 
 
-
-void updatePIDParams(String &input) {
-    if (input.indexOf("Kp=") >= 0) {
-        int index = input.indexOf("Kp=") + 3;
-        String newKp = input.substring(index);
-        Kp = newKp.toFloat();
-        Serial.print("Kp set to ");
-        Serial.println(Kp);
-    } else if (input.indexOf("Kd=") >= 0) {
-        int index = input.indexOf("Kd=") + 3;
-        String newKd = input.substring(index);
-        Kd = newKd.toFloat();
-        Serial.print("Kd set to ");
-        Serial.println(Kd);
-    } else if (input.indexOf("Ki=") >= 0) {
-        int index = input.indexOf("Ki=") + 3;
-        String newKi = input.substring(index);
-        Ki = newKi.toFloat();
-        Serial.print("Ki set to ");
-        Serial.println(Ki);
-    } else {
-        Serial.println("Invalid input.");
-    }
+void updatePIDParams(float newKp, float newKd, float newKi) {
+  Kp = newKp;
+  Kd = newKd;
+  Ki = newKi;
 }
