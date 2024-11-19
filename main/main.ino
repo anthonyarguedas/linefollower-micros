@@ -12,17 +12,20 @@ unsigned short state = PAUSED;
 unsigned long brakeTimer;
 unsigned long backwardTimer;
 
-bool backwardLock = false;
-bool brakeLock = false;
+// 0: Se puede activar el estado
+unsigned short backwardLock = 0;
+unsigned short brakeLock = 0;
 
-unsigned short redCounter = 0;
-unsigned short greenCounter = 0;
-unsigned short blueCounter = 0;
+// Cantidad de veces que se ha encontrado cada color
+// Orden: RED, GREEN, BLUE
+unsigned short colorCounters[3] = {0, 0, 0};
 
 // Estados asignados a cada color
 // Orden: RED, GREEN, BLUE
 unsigned short colorStates[3] = {BACKWARD, FAST, BRAKE};
 
+// Se asume que el carro inicia sobre tape negro
+unsigned short lastColorCode = OTHER_COLOR;
 unsigned short colorCode;
 int position;
 
@@ -111,39 +114,49 @@ void loop() {
         default:
             getColorCode(&colorCode);
 
+            if (colorCode != lastColorCode) {
+                if (backwardLock > 0) {backwardLock--;}
+            }
+            lastColorCode = colorCode;
+
             switch(colorCode) {
                 case OTHER_COLOR:
-                    if (!isOutOfBoundsRead()) {state = FORWARD;}
+                    if (!isOutOfBoundsRead()) {
+                        brakeLock = 0;
+                        state = FORWARD;
+                    }
                     break;
                 default:
                     switch(colorStates[colorCode]) {
                         case FAST:
                             state = FAST;
-                            backwardLock = false;
-                            brakeLock = false;
+                            backwardLock = 0;
+                            brakeLock = 0;
                             break;
                         case BRAKE:
-                            if (!brakeLock) {
+                            if (brakeLock == 0) {
                                 state = BRAKE;
-                                brakeLock = true;
+                                brakeLock = 1;
                                 brakeTimer = millis();
                             }
-                            backwardLock = false;
+                            backwardLock = 0;
                             break;
                         case BACKWARD:
-                            if (!backwardLock) {
+                            if (backwardLock == 0) {
                                 state = BACKWARD;
-                                backwardLock = true;
+                                backwardLock = 3;
                                 backwardTimer = millis();
                             }
-                            brakeLock = false;
+                            brakeLock = 0;
                             break;
                     }
+
+                    colorCounters[colorCode]++;
             }
     }
 
 
-
+ 
     /*** Controlar motores según la posición y el estado ***/
     switch (state) {
         case PAUSED:
