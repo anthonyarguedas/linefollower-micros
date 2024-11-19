@@ -1,35 +1,94 @@
+#include <Arduino.h>
+
+// Declaración de contadores
+byte contador_rojo = 0;
+byte contador_verde = 0;
+byte contador_azul = 0;
+unsigned long previousMillis = 0; // Tiempo anterior
+const unsigned long interval = 1000; // Intervalo de 1 segundo
+
 void setup() {
-  Serial.begin(9600);  // Serial para el monitor serie
-  Serial2.begin(9600); // UART para comunicación con la Raspberry Pi
-  Serial.println("Teensy lista para comunicación UART...");
+  Serial.begin(9600);   // Monitor serial
+  Serial2.begin(9600);  // UART en Serial2
 }
 
-int colorCounter = 0; // Contador de colores
-
 void loop() {
-  // Leer datos desde la Raspberry Pi (10 bits enviados en 2 bytes)
-  if (Serial2.available() >= 2) {
-    byte data[2];
-    data[0] = Serial2.read(); // Leer primer byte
-    data[1] = Serial2.read(); // Leer segundo byte
+  if (Serial2.available() >= 7) {
+    // Leer los 7 bytes recibidos
+    byte byte1 = Serial2.read();
+    uint16_t kp_raw = (Serial2.read() << 8) | Serial2.read(); // Bytes 2 y 3
+    uint16_t ki_raw = (Serial2.read() << 8) | Serial2.read(); // Bytes 4 y 5
+    uint16_t kd_raw = (Serial2.read() << 8) | Serial2.read(); // Bytes 6 y 7
 
-    // Reconstruir los 10 bits desde los 2 bytes
-    unsigned int receivedData = (data[0] << 8) | data[1];
+    // Convertir a valores decimales (dividir por 100)
+    float kp = kp_raw / 100.0;
+    float ki = ki_raw / 100.0;
+    float kd = kd_raw / 100.0;
 
-    // Mostrar los bits recibidos
-    Serial.print("Bits recibidos: ");
-    for (int i = 9; i >= 0; i--) {
-      Serial.print((receivedData >> i) & 0x01);
+    // Extraer las secciones del byte1
+    bool carro_activado = (byte1 & 0b10000000) >> 7;  // Bit 1
+    bool direccion = (byte1 & 0b01000000) >> 6;       // Bit 2
+    byte accion_rojo = (byte1 & 0b00110000) >> 4;     // Bits 3 y 4
+    byte accion_verde = (byte1 & 0b00001100) >> 2;    // Bits 5 y 6
+    byte accion_azul = (byte1 & 0b00000011);          // Bits 7 y 8
+
+    // Imprimir datos en el monitor serial
+    Serial.println("Datos recibidos:");
+    Serial.print("Carro activado: ");
+    Serial.println(carro_activado ? "Sí" : "No");
+
+    Serial.print("Dirección: ");
+    Serial.println(direccion ? "Derecha" : "Izquierda");
+
+    Serial.print("Acción rojo: ");
+    switch (accion_rojo) {
+      case 0: Serial.println("Frenar"); break;
+      case 1: Serial.println("Cambiar"); break;
+      case 2: Serial.println("Retroceder"); break;
+      default: Serial.println("Desconocido"); break;
     }
-    Serial.println();
 
-    // Incrementar el contador de colores
-    colorCounter++;
-    if (colorCounter > 255) colorCounter = 0; // Reiniciar si supera 255
+    Serial.print("Acción verde: ");
+    switch (accion_verde) {
+      case 0: Serial.println("Frenar"); break;
+      case 1: Serial.println("Cambiar"); break;
+      case 2: Serial.println("Retroceder"); break;
+      default: Serial.println("Desconocido"); break;
+    }
 
-    // Enviar el contador de colores a la Raspberry Pi
-    Serial2.write(colorCounter);
-    Serial.print("Contador enviado: ");
-    Serial.println(colorCounter);
+    Serial.print("Acción azul: ");
+    switch (accion_azul) {
+      case 0: Serial.println("Frenar"); break;
+      case 1: Serial.println("Cambiar"); break;
+      case 2: Serial.println("Retroceder"); break;
+      default: Serial.println("Desconocido"); break;
+    }
+
+    Serial.print("Kp: ");
+    Serial.println(kp, 2); // Mostrar 2 decimales
+
+    Serial.print("Ki: ");
+    Serial.println(ki, 2); // Mostrar 2 decimales
+
+    Serial.print("Kd: ");
+    Serial.println(kd, 2); // Mostrar 2 decimales
+
+    Serial.println("-------------------");
+  }
+
+  // Enviar contadores cada segundo
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis;
+
+    // Incrementar los contadores
+    contador_rojo++;
+    contador_verde++;
+    contador_azul++;
+
+    // Enviar los contadores
+    Serial2.write(contador_rojo);
+    Serial2.write(contador_verde);
+    Serial2.write(contador_azul);
   }
 }
