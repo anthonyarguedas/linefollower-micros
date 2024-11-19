@@ -88,6 +88,18 @@ bool isOutOfBounds() {
   return true;
 }
 
+bool isOutOfBoundsRead() {
+  readArrayCalibrated();
+
+  for (int i = 0; i < sensorCount; i++) {
+    if (sensorValues[i] >= 512) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 int getLinePosition() {
   readArrayCalibrated();
   printArray(sensorValues);

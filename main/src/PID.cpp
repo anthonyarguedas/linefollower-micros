@@ -2,9 +2,9 @@
 
 
 
-float Kp = 5.5;  // Proportional gain
+float Kp = 10;  // Proportional gain
 float Ki = 0;  // Integral gain
-float Kd = 10;  // Derivative gain
+float Kd = 0;  // Derivative gain
 
 int targetPosition = 0;  // Target position (centered on the line)
 
@@ -91,22 +91,27 @@ void updatePID(int position, unsigned short state) {
 
      switch(state) {
         case FORWARD:
-        int Speed = 215;
+        Speed = 215;
         setMotorPWM(motorA_speed, AIN1, AIN2);  // Set motor A speed
         setMotorPWM(motorB_speed, BIN1, BIN2);  // Set motor B speed
             break;
         case BACKWARD:
-        int Speed = 215;
-        setMotorPWM(-motorA_speed, BIN1, BIN2);  // Set motor A speed
-        setMotorPWM(-motorB_speed, AIN1, AIN2);  // Set motor B speed
+        Speed = 215;
+        setMotorPWM(-motorA_speed, AIN1, AIN2);  // Set motor A speed
+        setMotorPWM(-motorB_speed, BIN1, BIN2);  // Set motor B speed
             break;
         case BRAKE:
-        int Speed = 0;
+        Speed = 0;
         setMotorPWM(motorA_speed, AIN1, AIN2);  // Set motor A speed
         setMotorPWM(motorB_speed, BIN1, BIN2);  // Set motor B speed
             break;
+        case PAUSED:
+          Speed = 0;
+          setMotorPWM(motorA_speed, AIN1, AIN2);  // Set motor A speed
+          setMotorPWM(motorB_speed, BIN1, BIN2);  // Set motor B speed
+          break;
         case FAST:
-        int Speed = 235;
+        Speed = 235;
         setMotorPWM(motorA_speed, AIN1, AIN2);  // Set motor A speed
         setMotorPWM(motorB_speed, BIN1, BIN2);  // Set motor B speed
             break;
@@ -137,27 +142,8 @@ void updatePID(int position, unsigned short state) {
 }
 
 
-
-void updatePIDParams(String &input) {
-    if (input.indexOf("Kp=") >= 0) {
-        int index = input.indexOf("Kp=") + 3;
-        String newKp = input.substring(index);
-        Kp = newKp.toFloat();
-        Serial.print("Kp set to ");
-        Serial.println(Kp);
-    } else if (input.indexOf("Kd=") >= 0) {
-        int index = input.indexOf("Kd=") + 3;
-        String newKd = input.substring(index);
-        Kd = newKd.toFloat();
-        Serial.print("Kd set to ");
-        Serial.println(Kd);
-    } else if (input.indexOf("Ki=") >= 0) {
-        int index = input.indexOf("Ki=") + 3;
-        String newKi = input.substring(index);
-        Ki = newKi.toFloat();
-        Serial.print("Ki set to ");
-        Serial.println(Ki);
-    } else {
-        Serial.println("Invalid input.");
-    }
+void updatePIDParams(float newKp, float newKd, float newKi) {
+  Kp = newKp;
+  Kd = newKd;
+  Ki = newKi;
 }
