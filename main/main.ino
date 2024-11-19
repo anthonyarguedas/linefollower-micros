@@ -46,21 +46,8 @@ void setup() {
 }
 
 void loop() {
-    if (Serial.available()) {
-        command = Serial.readStringUntil('\n');
-
-        if (command == "p") {
-            Serial.print("Line follower paused.");
-            Serial.println(" Send 'r' to resume.");
-            state = PAUSED;
-        } else if (command == "r") {
-            Serial.print("Line follower started.");
-            Serial.println(" Send 'p' to pause.");
-            Serial.println();
-            if (state == PAUSED) {state = FORWARD;}
-        } else if (state == PAUSED) {
-            // updatePIDParams(command);
-        }
+    if (millis() - timer >= 3000) {
+        if (state == FORWARD)
     }
 
     switch(state) {
