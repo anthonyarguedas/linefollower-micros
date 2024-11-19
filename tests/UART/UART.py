@@ -2,7 +2,6 @@ import serial
 import struct
 import tkinter as tk
 from tkinter import ttk
-import RPi.GPIO as GPIO
 
 # Configurar el puerto UART
 uart = serial.Serial(
@@ -10,10 +9,6 @@ uart = serial.Serial(
     baudrate=115200,       # Velocidad de transmisión
     timeout=1            # Tiempo de espera
 )
-
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(18, GPIO.OUT)
-GPIO.output(18, GPIO.LOW)
 
 
 def create_data(byte1, kp, ki, kd):
@@ -96,9 +91,6 @@ def send_data():
     uart.write(data_to_send)
 
     print("Datos enviados:", data_to_send)
-
-    GPIO.output(18, GPIO.HIGH)
-    root.after(1, lambda: GPIO.output(18, GPIO.LOW))
 
 def receive_data():
     """
@@ -210,4 +202,3 @@ receive_data()
 
 # Iniciar el bucle principal
 root.mainloop()
-GPIO.cleanup()
