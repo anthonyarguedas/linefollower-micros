@@ -2,6 +2,8 @@ import serial
 import struct
 import tkinter as tk
 from tkinter import ttk
+import RPi.GPIO as GPIO
+import asyncio
 
 # Configurar el puerto UART
 uart = serial.Serial(
@@ -9,6 +11,11 @@ uart = serial.Serial(
     baudrate=115200,       # Velocidad de transmisión
     timeout=1            # Tiempo de espera
 )
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(16, GPIO.OUT)
+GPIO.output(16, GPIO.LOW)
+
 
 def create_data(byte1, kp, ki, kd):
     """
@@ -69,6 +76,12 @@ def update_controls_state():
         ki_scale.config(state="normal")
         kd_scale.config(state="normal")
 
+async def set_pin_high_for_1ms():
+    # Code to set the pin high
+    GPIO.output(16, GPIO.HIGH)
+    await asyncio.sleep(0.001)  # Non-blocking sleep for 1 ms
+    GPIO.output(16, GPIO.LOW)
+
 def send_data():
     """
     Obtener valores de la GUI y enviarlos a través de UART.
@@ -88,6 +101,9 @@ def send_data():
     # Crear y enviar el paquete
     data_to_send = create_data(byte1, kp, ki, kd)
     uart.write(data_to_send)
+
+    asyncio.run(set_pin_high_for_1ms())
+
     print("Datos enviados:", data_to_send)
 
 def receive_data():
