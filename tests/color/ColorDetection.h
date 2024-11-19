@@ -13,8 +13,6 @@ extern Adafruit_TCS34725 tcs;
 
 #define AMOUNT_OF_COLORS 3
 
-#define DIFF_THRESHOLD 10
-
 void getColorCode(uint8_t *colorCode);
 void printColorCode(uint8_t colorCode);
 
