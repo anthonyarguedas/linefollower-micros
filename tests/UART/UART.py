@@ -6,7 +6,7 @@ from tkinter import ttk
 # Configurar el puerto UART
 uart = serial.Serial(
     port='/dev/serial0',  # Asegúrate de usar el puerto correcto
-    baudrate=9600,       # Velocidad de transmisión
+    baudrate=115200,       # Velocidad de transmisión
     timeout=1            # Tiempo de espera
 )
 
