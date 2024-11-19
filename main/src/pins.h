@@ -7,6 +7,7 @@
 // Serial2
 #define TX 8
 #define RX 7
+#define SIGNAL 9
 
 #define AIN1 0
 #define AIN2 1
