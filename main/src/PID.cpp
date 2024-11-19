@@ -97,8 +97,8 @@ void updatePID(int position, unsigned short state) {
             break;
         case BACKWARD:
         Speed = 195;
-        setMotorPWM(-motorA_speed, BIN1, BIN2);  // Set motor A speed
-        setMotorPWM(-motorB_speed, AIN1, AIN2);  // Set motor B speed
+        setMotorPWM(-motorA_speed, AIN1, AIN2);  // Set motor A speed
+        setMotorPWM(-motorB_speed, BIN1, BIN2);  // Set motor B speed
             break;
         case BRAKE:
         Speed = 0;
