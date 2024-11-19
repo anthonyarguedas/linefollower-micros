@@ -74,7 +74,7 @@ void printState(unsigned short state) {
 }
 
 void UARTRXISR() {
-    if (Serial2.available() >= 7) {rxAvailable = true;}
+    rxAvailable = true;
 }
 
 void UARTRead() {
@@ -128,9 +128,9 @@ void setup() {
     initMotorPins();
     tcs.begin();
 
-    pinMode(SIGNAL, INPUT);
-
     Serial2.begin(115200);
+
+    pinMode(SIGNAL, INPUT);
     attachInterrupt(digitalPinToInterrupt(SIGNAL), UARTRXISR, RISING);
 
     /*
@@ -148,8 +148,10 @@ void setup() {
 
 void loop() {
     if (rxAvailable == true) {
-        UARTRead();
-        rxAvailable = false;
+        if (Serial2.available() >= 7) {
+            UARTRead();
+            rxAvailable = false;
+        }
     }
 
     // TODO: Remove line below only
