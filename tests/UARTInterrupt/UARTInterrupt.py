@@ -15,6 +15,8 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(18, GPIO.OUT)
 GPIO.output(18, GPIO.LOW)
 
+car_activated = False
+
 
 def create_data(byte1, kp, ki, kd):
     """
@@ -39,7 +41,7 @@ def update_controls_state():
     """
     Actualiza el estado de los controles en función de si el carro está activo o no.
     """
-    if car_activated.get() == "1":  # Carro activado
+    if car_activate.get() == "1" and not car_activated:  # Carro activado
         # Deshabilitar todos los controles
         direction_radio_izq.config(state="disabled")
         direction_radio_der.config(state="disabled")
@@ -55,10 +57,9 @@ def update_controls_state():
         kp_scale.config(state="disabled")
         ki_scale.config(state="disabled")
         kd_scale.config(state="disabled")
-        
-        # Mostrar mensaje de error en la terminal
-        print("Error: El carro está activo. No se pueden cambiar parámetros.")
-    else:  # Carro desactivado
+
+        car_activated = True
+    elif car_activate.get() == "0" and car_activated:  # Carro desactivado
         # Habilitar todos los controles
         direction_radio_izq.config(state="normal")
         direction_radio_der.config(state="normal")
@@ -75,13 +76,21 @@ def update_controls_state():
         ki_scale.config(state="normal")
         kd_scale.config(state="normal")
 
+        car_activated = False
+
 def send_data():
     """
     Obtener valores de la GUI y enviarlos a través de UART.
     """
+
+    if car_activate.get() == "1" and car_activated:
+        # Mostrar mensaje de error en la terminal
+        print("Error: El carro está activo. No se pueden cambiar parámetros.")
+        return
+
     # Construir el byte1 con los bits configurados
     byte1 = (
-        (int(car_activated.get()) << 7) |
+        (int(car_activate.get()) << 7) |
         (int(direction.get()) << 6) |
         (int(red_action.get()) << 4) |
         (int(green_action.get()) << 2) |
@@ -97,6 +106,8 @@ def send_data():
 
     print("Datos enviados:", data_to_send)
 
+    update_controls_state()
+
     GPIO.output(18, GPIO.HIGH)
     root.after(10, lambda: GPIO.output(18, GPIO.LOW))
 
@@ -106,7 +117,7 @@ def receive_data():
     """
     #if uart.in_waiting >= 3:  # Esperar a tener al menos 3 bytes
     # TODO: Remove
-    if uart.in_waiting >= 6:
+    if uart.in_waiting >= 8:
         # Leer contadores
         contador_rojo = int.from_bytes(uart.read(1), byteorder='big')
         contador_verde = int.from_bytes(uart.read(1), byteorder='big')
@@ -145,17 +156,20 @@ def receive_data():
 
         print(f"Estado: {estados[estado]}")
         print(f"Calibración: {estados_calibracion[estado_calibracion]}")
-        print(f"Color: {colores[color_actual]}\n")
+        print(f"Color: {colores[color_actual]}")
 
-    # Llamar nuevamente después de 100 ms
-    root.after(100, receive_data)
+        posicion = int.from_bytes(uart.read(2), byteorder='big')
+        print(f"Posición: {posicion}\n")
+
+    # Llamar nuevamente después de 10 ms
+    root.after(10, receive_data)
 
 # Crear la ventana principal
 root = tk.Tk()
 root.title("Control UART")
 
 # Variables para los controles
-car_activated = tk.StringVar(value="0")
+car_activate = tk.StringVar(value="0")
 direction = tk.StringVar(value="0")
 red_action = tk.StringVar(value="0")
 green_action = tk.StringVar(value="0")
@@ -170,8 +184,8 @@ frame1 = tk.LabelFrame(root, text="Control del Byte 1", padx=10, pady=10)
 frame1.pack(padx=10, pady=10, fill="x")
 
 tk.Label(frame1, text="Carro activado:").grid(row=0, column=0, sticky="w")
-car_radio_off = tk.Radiobutton(frame1, text="Desactivado", variable=car_activated, value="0", command=update_controls_state)
-car_radio_on = tk.Radiobutton(frame1, text="Activado", variable=car_activated, value="1", command=update_controls_state)
+car_radio_off = tk.Radiobutton(frame1, text="Desactivado", variable=car_activate, value="0")
+car_radio_on = tk.Radiobutton(frame1, text="Activado", variable=car_activate, value="1")
 car_radio_off.grid(row=0, column=1)
 car_radio_on.grid(row=0, column=2)
 
