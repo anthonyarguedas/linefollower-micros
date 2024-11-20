@@ -6,7 +6,7 @@ import RPi.GPIO as GPIO
 
 # Configurar el puerto UART
 uart = serial.Serial(
-    port='/dev/serial0',  # Asegúrate de usar el puerto correcto
+    port='/dev/ttyAMA0',  # Asegúrate de usar el puerto correcto
     baudrate=115200,       # Velocidad de transmisión
     timeout=1            # Tiempo de espera
 )
@@ -41,6 +41,8 @@ def update_controls_state():
     """
     Actualiza el estado de los controles en función de si el carro está activo o no.
     """
+    global car_activated
+
     if car_activate.get() == "1" and not car_activated:  # Carro activado
         # Deshabilitar todos los controles
         direction_radio_izq.config(state="disabled")
@@ -82,6 +84,7 @@ def send_data():
     """
     Obtener valores de la GUI y enviarlos a través de UART.
     """
+    global car_activated
 
     if car_activate.get() == "1" and car_activated:
         # Mostrar mensaje de error en la terminal
