@@ -161,7 +161,7 @@ def receive_data():
         print(f"Calibración: {estados_calibracion[estado_calibracion]}")
         print(f"Color: {colores[color_actual]}")
 
-        posicion = int.from_bytes(uart.read(2), byteorder='big')
+        posicion = int.from_bytes(uart.read(2), byteorder='big', signed=True)
         print(f"Posición: {posicion}\n")
 
     # Llamar nuevamente después de 10 ms
