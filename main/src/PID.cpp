@@ -8,8 +8,6 @@ float Kd = 0;  // Derivative gain
 
 int targetPosition = 0;  // Target position (centered on the line)
 
-int Speed = 215;
-
 float previousError = 0;
 float integral = 0;
 unsigned long lastTime = 0;
@@ -35,14 +33,6 @@ void initMotorPins() {
   digitalWrite(SLP, HIGH);
 
   // analogWriteResolution(10);
-
-  Serial.print("Initial Kp = ");
-  Serial.println(Kp);
-  Serial.print("Initial Kd = ");
-  Serial.println(Kd);
-  Serial.print("Initial Ki = ");
-  Serial.println(Ki);
-  Serial.println();
 }
 
 // Function to set motor speeds
@@ -64,58 +54,46 @@ void turnMotorsOff() {
 }
 
 void updatePID(int position, unsigned short state) {
-  // Calculate PID control output
-  unsigned long currentTime = millis();
-  float deltaTime = (currentTime - lastTime) / 1000.0;  // Time difference in seconds
-  
+  int Speed = 215;
+  // Apply correction to motor speeds
+  int motorA_speed;
+  int motorB_speed;
+
+  switch (state) {
+    case PAUSED:
+      setMotorPWM(0, AIN1, AIN2);
+      setMotorPWM(0, BIN1, BIN2);
+      return;
+    case BRAKE:
+      setMotorPWM(0, AIN1, AIN2);
+      setMotorPWM(0, BIN1, BIN2);
+      return;
+    case FAST:
+      Speed = 235;
+      break;
+    default:
+      Speed = 215;
+  }
+
   // Proportional term
   float error = targetPosition - position;
-  
-  // Serial.print("error=");
-  // Serial.println(error);
 
   // Integral term
   integral += error;
-  
+
   // Derivative term
   // float derivative = (error - previousError) / deltaTime;
   float derivative = (error - previousError);
+  previousError = error;
   // PID output
   float correction = (Kp * error) + (Ki * integral) + (Kd * derivative);
-  
-  // Apply correction to motor speeds
-  unsigned int motorA_speed = constrain(Speed - correction, 0, Speed);  // Motor A speed
-  unsigned int motorB_speed = constrain(Speed + correction, 0, Speed);  // Motor B speed
-  
-  // Set motor speeds
 
-     switch(state) {
-        case FORWARD:
-        Speed = 215;
-        setMotorPWM(motorA_speed, AIN1, AIN2);  // Set motor A speed
-        setMotorPWM(motorB_speed, BIN1, BIN2);  // Set motor B speed
-            break;
-        case BACKWARD:
-        Speed = 215;
-        setMotorPWM(-motorA_speed, AIN1, AIN2);  // Set motor A speed
-        setMotorPWM(-motorB_speed, BIN1, BIN2);  // Set motor B speed
-            break;
-        case BRAKE:
-        Speed = 0;
-        setMotorPWM(motorA_speed, AIN1, AIN2);  // Set motor A speed
-        setMotorPWM(motorB_speed, BIN1, BIN2);  // Set motor B speed
-            break;
-        case PAUSED:
-          Speed = 0;
-          setMotorPWM(motorA_speed, AIN1, AIN2);  // Set motor A speed
-          setMotorPWM(motorB_speed, BIN1, BIN2);  // Set motor B speed
-          break;
-        case FAST:
-        Speed = 235;
-        setMotorPWM(motorA_speed, AIN1, AIN2);  // Set motor A speed
-        setMotorPWM(motorB_speed, BIN1, BIN2);  // Set motor B speed
-            break;
-     }
+  motorA_speed = constrain(Speed - correction, 0, Speed);  // Motor A speed
+  motorB_speed = constrain(Speed + correction, 0, Speed);  // Motor B speed
+
+  setMotorPWM(motorA_speed, AIN1, AIN2);  // Set motor A speed
+  setMotorPWM(motorB_speed, BIN1, BIN2);  // Set motor B speed
+}
         
   
   // Serial.print("VelA=");
