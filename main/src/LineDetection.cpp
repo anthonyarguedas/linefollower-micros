@@ -52,17 +52,10 @@ void calculateMaxMin() {
 
 void calibrateLineDetector() {
   unsigned long startTime = millis();
-  Serial.println("Calibration started.");
   // Calibrate for 10 s
   while (millis() - startTime < 10000) {
     calculateMaxMin();
   }
-  Serial.println("Calibration done.");
-
-  Serial.print("Maximum values: ");
-  printArray(maxValues);
-  Serial.print("Minimum values: ");
-  printArray(minValues);
 }
 
 unsigned int* readArrayCalibrated() {
