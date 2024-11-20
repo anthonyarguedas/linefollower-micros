@@ -38,18 +38,18 @@ void initMotorPins() {
 void setMotorPWM(int pwm, unsigned short IN1_PIN, unsigned short IN2_PIN) {
   if (pwm < 0) {  // Reverse speeds
     analogWrite(IN2_PIN, -pwm);
-    digitalWrite(IN1_PIN, LOW);
+    analogWrite(IN1_PIN, 0);
   } else {  // Stop or forward
     analogWrite(IN1_PIN, pwm);
-    digitalWrite(IN2_PIN, LOW);
+    analogWrite(IN2_PIN, 0);
   }
 }
 
 void turnMotorsOff() {
-  digitalWrite(AIN1, LOW);
-  digitalWrite(AIN2, LOW);
-  digitalWrite(BIN1, LOW);
-  digitalWrite(BIN2, LOW);
+  analogWrite(AIN1, 0);
+  analogWrite(AIN2, 0);
+  analogWrite(BIN1, 0);
+  analogWrite(BIN2, 0);
 }
 
 void updatePID(int position, unsigned short state) {
@@ -71,7 +71,7 @@ void updatePID(int position, unsigned short state) {
   int motorA_speed = constrain(Speed - correction, 0, Speed);
   int motorB_speed = constrain(Speed + correction, 0, Speed);
   */
-  int Speed = (state == FAST) ? 950 : 850;
+  int Speed = (state == FAST) ? 400 : 300;
   int motorA_speed = map(Speed - correction, 0, 1023, 0, 255);
   int motorB_speed = map(Speed + correction, 0, 1023, 0, 255);
 
