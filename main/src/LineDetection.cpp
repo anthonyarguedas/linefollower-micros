@@ -48,8 +48,8 @@ unsigned int* readArrayBW() {
   return sensorValuesBW;
 }
 
-void printArray(unsigned int* values, unsigned short sensorCount) {
-  for (int i = 0; i < sensorCount; i++) {
+void printArray(unsigned int* values, unsigned short length) {
+  for (int i = 0; i < length; i++) {
     Serial.print(values[i]);
     Serial.print(" ");
   }

@@ -245,7 +245,7 @@ void loop() {
         case BACKWARD:
             position = getLinePositionBW();
             delayNB(1);
-            updatePID(position);
+            updatePID(position, state);
             break;
         default:
             position = getLinePosition();
