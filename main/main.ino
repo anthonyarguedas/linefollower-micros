@@ -54,26 +54,6 @@ void delayNB(unsigned long time) {
     while (millis() - lastUpdateTime < time) {} // delay(time)
 }
 
-void printState(unsigned short state) {
-    switch (state) {
-      case PAUSED:
-        Serial.print("PAUSED");
-        break;
-      case FORWARD:
-        Serial.print("FORWARD");
-        break;
-      case BACKWARD:
-        Serial.print("BACKWARD");
-        break;
-      case BRAKE:
-        Serial.print("BRAKE");
-        break;
-      case FAST:
-        Serial.print("FAST");
-        break;
-    }
-}
-
 void UARTRXISR() {
     rxAvailable = true;
 }
@@ -109,18 +89,25 @@ bool UARTRead() {
     }
 
     turnDirection = (byte1 & 0b01000000) >> 6;       // Bit 2
-    bool activate = (byte1 & 0b10000000) >> 7;  // Bit 1
+    unsigned short activate = (byte1 & 0b10000000) >> 7;  // Bit 1
 
-    if (activate) {
+    if (activate == 1) {
         state = FORWARD;
+        // TODO: Remove
+        calibrationState = CALIBRATING;
+        UARTWrite();
+        calibrateLineDetector();
+        calibrationState = CALIBRATED;
+        UARTWrite();
+        brakeLock = 1;
+        backwardLock = 1;
         // TODO: Remove
         #ifndef USE_COLOR
         timer = millis();
         #endif
     } else {
         state = PAUSED;
-        brakeLock = 1;
-        backwardLock = 1;
+        calibrationState = UNCALIBRATED;
     }
 
     return false;
@@ -137,6 +124,10 @@ void UARTWrite() {
     Serial2.write(state);
     Serial2.write(calibrationState);
     Serial2.write(colorCode);
+
+    unsigned int uintPosition = (unsigned int)position;
+    Serial2.write((uintPosition >> 8) & 0xFF);
+    Serial2.write(uintPosition & 0xFF);
 }
 
 
@@ -149,12 +140,6 @@ void setup() {
 
     pinMode(SIGNAL, INPUT);
     attachInterrupt(digitalPinToInterrupt(SIGNAL), UARTRXISR, RISING);
-
-    calibrationState = CALIBRATING;
-    UARTWrite();
-    calibrateLineDetector();
-    calibrationState = CALIBRATED;
-    UARTWrite();
   
     // TODO: Remove
     #ifndef USE_COLOR
@@ -258,33 +243,21 @@ void loop() {
         case BACKWARD:
             position = readBuffer();
             delayNB(1);
-            Serial.print(position);
-            Serial.print(", ");
             break;
-        case FORWARD:
-            printColorCode(colorCode);
-            Serial.print(", ");
-            // Sin break para poder entrar al default
         default:
             position = getLinePosition();
-            delayNB(1);
-            Serial.print(position);
-            Serial.print(", ");
             writeBuffer(position);
+            delayNB(1);
     }
 
-    printState(state);
-    Serial.println();
     updatePID(position, state);
 
     if (txAvailable == true) {
         UARTWrite();
         txAvailable = false;
-    }
-    // TODO: Remove
-    else {
+    } else { // TODO: Remove
         UARTWrite();
     }
 
-    delayNB(10);
+    delayNB(20);
 } 
