@@ -13,9 +13,9 @@ unsigned int maxValues[sensorCount] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 int lastPosition = 0;
 
 // Array BACKWARD
-unsigned short sensorPinsBW[sensorCountBW] = { BW1, BW2, BW3, BW4, BW5, BW6, BW7, BW8 };
+unsigned short sensorPinsBW[sensorCountBW] = { BWL, BWR, BWC };
 
-float weightsBW[sensorCountBW] = { -1.25, -1.0, -0.75, -0.5, 0.5, 0.75, 1.0, 1.25 };
+//float weightsBW[sensorCountBW] = { -1.25, -1.0, -0.75, -0.5, 0.5, 0.75, 1.0, 1.25 };
 
 unsigned int sensorValuesBW[sensorCountBW];
 
@@ -42,7 +42,7 @@ unsigned int* readArray() {
 
 unsigned int* readArrayBW() {
   for (int i = 0; i < sensorCountBW; i++) {
-    sensorValuesBW[i] = (unsigned int)(digitalRead(sensorPinsBW[i])) * 1023;
+    sensorValuesBW[i] = digitalRead(sensorPinsBW[i]) * 1023;
   }
 
   return sensorValuesBW;
@@ -150,23 +150,20 @@ int getLinePosition() {
 
 int getLinePositionBW() {
   readArrayBW();
+  
+  int scaledPosition;
 
-  float sum = 0;
-  float weightedSum = 0;
-
-  for (int i = 0; i < sensorCountBW; i++) {
-    sum += sensorValuesBW[i];
-    weightedSum += weightsBW[i] * sensorValuesBW[i];
-  }
-
-  float position = weightedSum / sum;
-
-  int scaledPosition = position * 1023.0;
-
-  if (isOutOfBoundsBW()) {
-    scaledPosition = lastPositionBW;
+  if (sensorValuesBW[LEFT] == 1023) {
+      scaledPosition = -512;
+      lastPositionBW = scaledPosition;
+  } else if (sensorValuesBW[RIGHT] == 1023) {
+      scaledPosition = 512;
+      lastPositionBW = scaledPosition;
+  } else if (!isOutOfBoundsBW()) {
+      scaledPosition = 0;
+      lastPositionBW = scaledPosition;
   } else {
-    lastPositionBW = scaledPosition;
+      scaledPosition = lastPositionBW;
   }
 
   return scaledPosition;

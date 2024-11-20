@@ -4,6 +4,7 @@
 #include "Arduino.h"
 
 #include "pins.h"
+#include "globals.h"
 
 #define sensorCount 8
 #define sensorCountBW 8
