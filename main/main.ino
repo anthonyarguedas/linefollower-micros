@@ -6,7 +6,6 @@
 #include "src/PID.h"
 #include "src/LineDetection.h"
 #include "src/ColorDetection.h"
-#include "src/ReverseBuffer.h"
 
 // TODO: Remove
 //#define USE_COLOR
@@ -164,10 +163,10 @@ void loop() {
                 backwardLock++;
             }
             lastColorCode = colorCode;
-            
+
             if (millis() - backwardTimer >= 3000) {
                 state = FORWARD;
-                refreshBuffer();
+                directionChange();
             }
             break;
         case BRAKE:
@@ -211,8 +210,9 @@ void loop() {
                             if (backwardLock == 0) {
                                 state = BACKWARD;
                                 backwardLock = 1;
-                                backwardTimer = millis();
                                 brakeLock = 0;
+                                directionChange();
+                                backwardTimer = millis();
                             }
                             break;
                     }
@@ -223,7 +223,7 @@ void loop() {
     if (millis() - timer >= 3000) {
         if (state == BACKWARD) {
             state = FORWARD;
-            refreshBuffer();
+            directionChange();
             timer = millis();
         } else if (state == FORWARD) {
             if (millis() - timer >= 3500) {
@@ -237,20 +237,21 @@ void loop() {
     /*** Controlar motores según la posición y el estado ***/
     switch (state) {
         case PAUSED:
+            turnMotorsOff();
             break;
         case BRAKE:
+            turnMotorsOff();
             break;
         case BACKWARD:
-            position = readBuffer();
+            position = getLinePositionBW();
             delayNB(1);
+            updatePID(position);
             break;
         default:
             position = getLinePosition();
-            writeBuffer(position);
+            updatePID(position, state);
             delayNB(1);
     }
-
-    updatePID(position, state);
 
     if (txAvailable == true) {
         UARTWrite();
