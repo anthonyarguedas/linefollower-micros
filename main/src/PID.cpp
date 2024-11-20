@@ -1,7 +1,6 @@
 #include "PID.h"
 
 
-
 float Kp = 10;  // Proportional gain
 float Ki = 0;  // Integral gain
 float Kd = 0;  // Derivative gain
@@ -54,74 +53,47 @@ void turnMotorsOff() {
 }
 
 void updatePID(int position, unsigned short state) {
-  int Speed = 215;
-  // Apply correction to motor speeds
-  int motorA_speed;
-  int motorB_speed;
-
-  switch (state) {
-    case PAUSED:
-      setMotorPWM(0, AIN1, AIN2);
-      setMotorPWM(0, BIN1, BIN2);
-      return;
-    case BRAKE:
-      setMotorPWM(0, AIN1, AIN2);
-      setMotorPWM(0, BIN1, BIN2);
-      return;
-    case FAST:
-      Speed = 235;
-      break;
-    default:
-      Speed = 215;
-  }
-
   // Proportional term
   float error = targetPosition - position;
 
-  // Integral term
-  integral += error;
+  unsigned long timeDelta = millis() - lastTime;
+
+  integral += error*timeDelta;
 
   // Derivative term
-  // float derivative = (error - previousError) / deltaTime;
-  float derivative = (error - previousError);
+  float derivative = (error - previousError) / timeDelta;
   previousError = error;
   // PID output
   float correction = (Kp * error) + (Ki * integral) + (Kd * derivative);
 
-  motorA_speed = constrain(Speed - correction, 0, Speed);  // Motor A speed
-  motorB_speed = constrain(Speed + correction, 0, Speed);  // Motor B speed
+  /*
+  int Speed = (state == FAST) ? 235 : 215;
+  int motorA_speed = constrain(Speed - correction, 0, Speed);
+  int motorB_speed = constrain(Speed + correction, 0, Speed);
+  */
+  int Speed = (state == FAST) ? 950 : 850;
+  int motorA_speed = map(Speed - correction, 0, 1023, 0, 255);
+  int motorB_speed = map(Speed + correction, 0, 1023, 0, 255);
 
-  setMotorPWM(motorA_speed, AIN1, AIN2);  // Set motor A speed
-  setMotorPWM(motorB_speed, BIN1, BIN2);  // Set motor B speed
-}
-        
-  
-  // Serial.print("VelA=");
-  // Serial.print(motorA_speed);
-  // Serial.println();
-  // Serial.print("VelB=");
-  // Serial.print(motorB_speed);
-  // Serial.println();
-  // Serial.print("Ki");
-  // Serial.print(Ki);
-  // Serial.println();
-  // Serial.print("Kp");
-  // Serial.print(Kp);
-  // Serial.println();
-  // Serial.print("Kd");
-  // Serial.print(Kd);
-  // Serial.println();
-  // Serial.print("Correction");
-  // Serial.print(correction);
-  // Serial.println();
-  // Update variables for next loop
-  previousError = error;
-  lastTime = currentTime;
-}
+  if (state != BACKWARD) {
+    setMotorPWM(motorA_speed, AIN1, AIN2);
+    setMotorPWM(motorB_speed, BIN1, BIN2);
+  } else {
+    setMotorPWM(motorA_speed, BIN1, BIN2);
+    setMotorPWM(motorB_speed, AIN1, AIN2);
+  }
 
+  lastTime = millis();
+}
 
 void updatePIDParams(float newKp, float newKd, float newKi) {
   Kp = newKp;
   Kd = newKd;
   Ki = newKi;
+}
+
+void directionChange() {
+  lastTime = millis();
+  integral = 0;
+  previousError = 0;
 }
