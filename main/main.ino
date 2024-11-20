@@ -124,9 +124,8 @@ void UARTWrite() {
     Serial2.write(calibrationState);
     Serial2.write(colorCode);
 
-    unsigned int uintPosition = (unsigned int)position;
-    Serial2.write((uintPosition >> 8) & 0xFF);
-    Serial2.write(uintPosition & 0xFF);
+    Serial2.write((position >> 8) & 0xFF);
+    Serial2.write(position & 0xFF);
 }
 
 
