@@ -12,8 +12,8 @@ unsigned short colorCodes[AMOUNT_OF_COLORS] = {RED, GREEN, BLUE};
 void getColorCode(unsigned short *colorCode) {
   float red, green, blue;
 
-  unsigned long t0 = millis();
-  while(millis() - t0 < 60);  // takes 60ms to read
+  elapsedMillis t0 = 0;
+  while(t0 < 60);  // takes 60ms to read
 
   tcs.getRGB(&red, &green, &blue);
 

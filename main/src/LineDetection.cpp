@@ -42,18 +42,11 @@ void printMeasurements() {
 }
 
 void calibrateLineDetector() {
-  unsigned long startTime = millis();
+  elapsedMillis startTime = 0;
   // Calibrate for 10 s
-  while (millis() - startTime < 10000) {
+  while (startTime < 10000) {
     qtra.calibrate();
   }
-
-  for (int i = 0; i < sensorCount; i++)
-  {
-    Serial.print(qtra.calibratedMaximumOn[i]);
-    Serial.print(' ');
-  }
-  Serial.println();
 }
 
 unsigned int* readArrayCalibrated() {
@@ -105,9 +98,6 @@ bool isFork() {
 
 int getLinePosition() {
   int position = qtra.readLine(sensorValues);
-
-  Serial.print("Fork: ");
-  Serial.println(isFork());
 
   return position;
 }

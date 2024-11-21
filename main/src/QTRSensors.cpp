@@ -435,7 +435,8 @@ void QTRSensorsRC::readPrivate(unsigned int *sensor_values)
         digitalWrite(_pins[i], HIGH);      // drive sensor line high
     }
 
-    delayMicroseconds(10);              // charge lines for 10 us
+    elapsedMicros t0 = 0;
+    while(t0 < 10) {}             // charge lines for 10 us
 
     for(i = 0; i < _numSensors; i++)
     {
@@ -443,10 +444,10 @@ void QTRSensorsRC::readPrivate(unsigned int *sensor_values)
         digitalWrite(_pins[i], LOW);        // important: disable internal pull-up!
     }
 
-    unsigned long startTime = micros();
-    while (micros() - startTime < _maxValue)
+    elapsedMicros startTime = 0;
+    while (startTime < _maxValue)
     {
-        unsigned int time = micros() - startTime;
+        unsigned int time = startTime;
         for (i = 0; i < _numSensors; i++)
         {
             if (digitalRead(_pins[i]) == LOW && time < sensor_values[i])

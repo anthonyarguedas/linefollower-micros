@@ -77,13 +77,6 @@ void updatePIDParams(float newKp, float newKd, int newSpeed) {
   Kp = newKp;
   Kd = newKd;
   Speed = newSpeed;
-  
-  Serial.print("Kp: ");
-  Serial.print(Kp);
-  Serial.print(" Kd: ");
-  Serial.print(Kd);
-  Serial.print(" Speed: ");
-  Serial.println(Speed);
 }
 
 void directionChange() {
