@@ -191,6 +191,8 @@ void loop() {
                     if (!isOutOfBoundsRead()) {
                         brakeLock = 0;
                         state = FORWARD;
+                    } else {
+                        Serial.println("Out of bounds.");
                     }
                     break;
                 default:
@@ -261,6 +263,7 @@ void loop() {
         UARTWrite();
         txAvailable = false;
     } else { // TODO: Remove
+        printMeasurements();
         UARTWrite();
     }
 
