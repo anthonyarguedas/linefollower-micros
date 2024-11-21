@@ -7,7 +7,9 @@
 #include "globals.h"
 
 #define sensorCount 8
-#define sensorCountBW 8
+#define sensorCountBW 3
+
+#define OUT_OF_BOUNDS_THRESHOLD 750
 
 void initLineDetectorPins();
 unsigned int* readArray();
@@ -21,5 +23,6 @@ bool isOutOfBoundsBW();
 bool isOutOfBoundsRead();
 int getLinePosition();
 int getLinePositionBW();
+bool isFork();
 
 #endif

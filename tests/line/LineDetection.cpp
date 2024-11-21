@@ -95,7 +95,7 @@ unsigned int* readArrayCalibrated() {
 
 bool isOutOfBounds() {
   for (int i = 0; i < sensorCount; i++) {
-    if (sensorValues[i] >= 512) {
+    if (sensorValues[i] >= OUT_OF_BOUNDS_THRESHOLD) {
       return false;
     }
   }
@@ -105,7 +105,7 @@ bool isOutOfBounds() {
 
 bool isOutOfBoundsBW() {
   for (int i = 0; i < sensorCountBW; i++) {
-    if (sensorValuesBW[i] >= 512) {
+    if (sensorValuesBW[i] >= OUT_OF_BOUNDS_THRESHOLD) {
       return false;
     }
   }
@@ -117,7 +117,7 @@ bool isOutOfBoundsRead() {
   readArrayCalibrated();
 
   for (int i = 0; i < sensorCount; i++) {
-    if (sensorValues[i] >= 750) {
+    if (sensorValues[i] >= OUT_OF_BOUNDS_THRESHOLD) {
       return false;
     }
   }
@@ -125,9 +125,21 @@ bool isOutOfBoundsRead() {
   return true;
 }
 
+bool isFork() {
+  unsigned short blackCounter = 0;
+
+  for (int i = 0; i < sensorCount; i++) {
+    if (sensorValues[i] >= OUT_OF_BOUNDS_THRESHOLD) {
+      blackCounter++;
+    }
+  }
+
+  return (blackCounter >= 4) ? true : false;
+}
+
 int getLinePosition() {
   unsigned int* ptr = readArrayCalibrated();
-  //printArray(ptr, sensorCount);
+  printArray(ptr, sensorCount);
 
   float sum = 0;
   float weightedSum = 0;
