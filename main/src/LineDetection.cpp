@@ -84,6 +84,9 @@ unsigned int* readArrayCalibrated() {
   readArray();
 
   for (int i = 0; i < sensorCount; i++) {
+    if (sensorValues[i] > maxValues[i]) {maxValues[i] = sensorValues[i];}
+    if (sensorValues[i] < minValues[i]) {minValues[i] = sensorValues[i];}
+
     sensorValues[i] = map(sensorValues[i], minValues[i], maxValues[i], 0, 1023);
     if (sensorValues[i] > 1023) {
       sensorValues[i] = 1023;
