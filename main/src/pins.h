@@ -26,8 +26,8 @@
 #define D1 14
 
 // Array digital
-#define BWL 0 // Izquierda
-#define BWR 2 // Derecha
-#define BWC 1 // Centro
+#define BWL 10 // Izquierda
+#define BWR 5 // Derecha
+#define BWC 6 // Centro
 
 #endif
