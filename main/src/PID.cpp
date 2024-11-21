@@ -1,15 +1,14 @@
 #include "PID.h"
 
 
-float Kp = 10;  // Proportional gain
+float Kp = 0.25;  // Proportional gain
 float Ki = 0;  // Integral gain
 float Kd = 0;  // Derivative gain
 
 int targetPosition = 0;  // Target position (centered on the line)
 
 float previousError = 0;
-float integral = 0;
-unsigned long lastTime = 0;
+int Speed = 0;
 
 void initMotorPins() {
   pinMode(AIN1, OUTPUT);
@@ -52,16 +51,14 @@ void turnMotorsOff() {
   analogWrite(BIN2, 0);
 }
 
-void updatePID(int position, unsigned short state) {
+void updatePID(int position, unsigned short state) {  
   // Proportional term
   float error = targetPosition - position;
 
-  unsigned long timeDelta = millis() - lastTime;
-
-  integral += error*timeDelta;
+  integral += error;
 
   // Derivative term
-  float derivative = (error - previousError) / timeDelta;
+  float derivative = (error - previousError);
   previousError = error;
   // PID output
   float correction = (Kp * error) + (Ki * integral) + (Kd * derivative);
@@ -71,29 +68,30 @@ void updatePID(int position, unsigned short state) {
   int motorA_speed = constrain(Speed - correction, 0, Speed);
   int motorB_speed = constrain(Speed + correction, 0, Speed);
   */
-  int Speed = (state == FAST) ? 400 : 300;
-  int motorA_speed = map(Speed - correction, 0, 1023, 0, 255);
-  int motorB_speed = map(Speed + correction, 0, 1023, 0, 255);
+  int maximumSpeed = (state == FAST) ? 255 : Speed;
+  int motorA_speed = constrain(maximumSpeed - correction, 0, Speed);
+  int motorB_speed = constrain(maximumSpeed + correction, 0, Speed);
+  
+  Serial.print("A Speed: ");
+  Serial.print(motorA_speed);
+  Serial.print("B Speed: ");
+  Serial.println(motorB_speed);
 
   if (state != BACKWARD) {
     setMotorPWM(motorA_speed, AIN1, AIN2);
     setMotorPWM(motorB_speed, BIN1, BIN2);
   } else {
-    setMotorPWM(motorA_speed, BIN1, BIN2);
-    setMotorPWM(motorB_speed, AIN1, AIN2);
+    setMotorPWM(-motorA_speed, BIN1, BIN2);
+    setMotorPWM(-motorB_speed, AIN1, AIN2);
   }
-
-  lastTime = millis();
 }
 
-void updatePIDParams(float newKp, float newKd, float newKi) {
+void updatePIDParams(float newKp, float newKd, float newSpeed) {
   Kp = newKp;
   Kd = newKd;
-  Ki = newKi;
+  Speed = newSpeed;
 }
 
 void directionChange() {
-  lastTime = millis();
-  integral = 0;
   previousError = 0;
 }

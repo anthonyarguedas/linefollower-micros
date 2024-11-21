@@ -2,7 +2,8 @@
 
 
 // Array FORWARD
-unsigned short sensorPins[sensorCount] = { D1, D2, D3, D4, D5, D6, D7, D8 };
+// De izquierda a derecha
+unsigned short sensorPins[sensorCount] = { D8, D7, D6, D5, D4, D3, D2, D1 };
 
 float weights[sensorCount] = { -1.25, -1.0, -0.75, -0.5, 0.5, 0.75, 1.0, 1.25 };
 
@@ -125,7 +126,8 @@ bool isOutOfBoundsRead() {
 }
 
 int getLinePosition() {
-  readArrayCalibrated();
+  unsigned int* ptr = readArrayCalibrated();
+  printArray(ptr, sensorCount);
 
   float sum = 0;
   float weightedSum = 0;

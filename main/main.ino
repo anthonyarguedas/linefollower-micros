@@ -134,6 +134,7 @@ void setup() {
     initMotorPins();
     tcs.begin();
 
+    Serial.begin(115200);
     Serial2.begin(115200);
 
     pinMode(SIGNAL, INPUT);
@@ -219,6 +220,7 @@ void loop() {
     }
     // TODO: Remove
     #else
+    /*
     if (millis() - timer >= 3000) {
         if (state == BACKWARD) {
             state = FORWARD;
@@ -231,6 +233,7 @@ void loop() {
             }
         }
     }
+    */
     #endif
 
     /*** Controlar motores según la posición y el estado ***/
