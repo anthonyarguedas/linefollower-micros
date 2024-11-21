@@ -23,7 +23,7 @@ bool isFork();
 bool isOutOfBounds();
 bool isOutOfBoundsRead();
 bool isOutOfBoundsBW();
-int getLinePosition(unsigned short turnDirection, bool* fork);
+int getLinePosition(unsigned short turnDirection, bool* isfork);
 int getLinePositionBW();
 
 #endif

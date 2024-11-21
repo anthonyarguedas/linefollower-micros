@@ -33,7 +33,7 @@ unsigned short colorCode;
 
 int position;
 bool outOfBounds = false;
-bool fork = false;
+bool isfork = false;
 
 // Dirección de giro ante una bifurcación
 unsigned short turnDirection = LEFT;
@@ -125,7 +125,7 @@ void UARTWrite() {
     txBuffer[7] = position & 0xFF;
 
     txBuffer[8] = outOfBounds;
-    txBuffer[9] = fork;
+    txBuffer[9] = isfork;
 
     Serial2.write(txBuffer, 10);
 }
@@ -229,7 +229,7 @@ void loop() {
                 updatePID(position, state);
                 break;
             default:
-                position = getLinePosition(turnDirection, &fork);
+                position = getLinePosition(turnDirection, &isfork);
                 updatePID(position, state);
                 delayNB(1000);
         }
