@@ -23,4 +23,9 @@
 #define LEFT 0
 #define RIGHT 1
 
+// Indices para leer array BW
+#define BWL_VAL 0
+#define BWC_VAL 1
+#define BWR_VAL 2
+
 #endif // GLOBALS_H
