@@ -3,6 +3,7 @@
 
 #include "Arduino.h"
 
+#include "QTRSensors.h"
 #include "pins.h"
 #include "globals.h"
 
@@ -15,10 +16,12 @@
 void initLineDetectorPins();
 unsigned int* readArrayBW();
 void printArray(unsigned int* values);
-void printMeasurements()
+void printMeasurements();
 void calibrateLineDetector();
 unsigned int* readArrayCalibrated();
 bool isFork();
+bool isOutOfBounds();
+bool isOutOfBoundsRead();
 bool isOutOfBoundsBW();
 int getLinePosition();
 int getLinePositionBW();
