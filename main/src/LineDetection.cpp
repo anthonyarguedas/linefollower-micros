@@ -7,7 +7,7 @@ QTRSensorsAnalog qtra((unsigned char[]) {D6, D6, D5, D4, D3, D2, D1},
 unsigned int sensorValues[sensorCount];
 
 // Array BACKWARD
-unsigned short sensorPinsBW[sensorCountBW] = { BWL, BWR, BWC };
+unsigned short sensorPinsBW[sensorCountBW] = { BWR, BWL, BWC };
 
 //float weightsBW[sensorCountBW] = { -1.25, -1.0, -0.75, -0.5, 0.5, 0.75, 1.0, 1.25 };
 
@@ -19,6 +19,9 @@ void initLineDetectorPins() {
     for (int i=0; i<sensorCountBW; i++) {
         pinMode(sensorPinsBW[i], INPUT);
     }
+    
+    pinMode(IR, OUTPUT);
+    digitalWrite(IR, LOW);
 }
 
 unsigned int* readArrayBW() {

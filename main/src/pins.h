@@ -24,10 +24,11 @@
 #define D3 16
 #define D2 15
 #define D1 14
+#define IR 13
 
 // Array digital
-#define BWL 10 // Izquierda
-#define BWR 5 // Derecha
-#define BWC 6 // Centro
+#define BWL 5 // Izquierda
+#define BWR 6 // Derecha
+#define BWC 10 // Centro
 
 #endif
