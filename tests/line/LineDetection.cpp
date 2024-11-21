@@ -1,24 +1,39 @@
 #include "LineDetection.h"
 
-const uint8_t sensorCount = 8;
-uint8_t sensorPins[sensorCount] = { D1, D2, D3, D4, D5, D6, D7, D8 };
 
-float weights[sensorCount] = { -1.0, -0.75, -0.50, -0.25, 0.25, 0.50, 0.75, 1.0 };
+// Array FORWARD
+// De izquierda a derecha
+unsigned short sensorPins[sensorCount] = { D8, D7, D6, D5, D4, D3, D2, D1 };
 
-uint16_t sensorValues[sensorCount];
-uint16_t minValues[sensorCount] = { 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023 };
-uint16_t maxValues[sensorCount] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+float weights[sensorCount] = { -1.25, -1.0, -0.75, -0.5, 0.5, 0.75, 1.0, 1.25 };
 
-uint16_t lastPosition = 0;
+unsigned int sensorValues[sensorCount];
+unsigned int minValues[sensorCount] = { 1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023 };
+unsigned int maxValues[sensorCount] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+
+int lastPosition = 0;
+
+// Array BACKWARD
+unsigned short sensorPinsBW[sensorCountBW] = { BWL, BWR, BWC };
+
+//float weightsBW[sensorCountBW] = { -1.25, -1.0, -0.75, -0.5, 0.5, 0.75, 1.0, 1.25 };
+
+unsigned int sensorValuesBW[sensorCountBW];
+
+int lastPositionBW = 0;
 
 
 void initLineDetectorPins() {
   for (int i = 0; i < sensorCount; i++) {
     pinMode(sensorPins[i], INPUT);
   }
+
+  for (int i = 0; i < sensorCountBW; i++) {
+    pinMode(sensorPinsBW[i], INPUT);
+  }
 }
 
-uint16_t* readArray() {
+unsigned int* readArray() {
   for (int i = 0; i < sensorCount; i++) {
     sensorValues[i] = analogRead(sensorPins[i]);
   }
@@ -26,8 +41,16 @@ uint16_t* readArray() {
   return sensorValues;
 }
 
-void printArray(uint16_t* values) {
-  for (int i = 0; i < sensorCount; i++) {
+unsigned int* readArrayBW() {
+  for (int i = 0; i < sensorCountBW; i++) {
+    sensorValuesBW[i] = digitalRead(sensorPinsBW[i]) * 1023;
+  }
+
+  return sensorValuesBW;
+}
+
+void printArray(unsigned int* values, unsigned short length) {
+  for (int i = 0; i < length; i++) {
     Serial.print(values[i]);
     Serial.print(" ");
   }
@@ -50,21 +73,14 @@ void calculateMaxMin() {
 }
 
 void calibrateLineDetector() {
-  uint32_t startTime = millis();
-  Serial.println("Calibration started.");
+  unsigned long startTime = millis();
   // Calibrate for 10 s
   while (millis() - startTime < 10000) {
     calculateMaxMin();
   }
-  Serial.println("Calibration done.");
-
-  Serial.print("Maximum values: ");
-  printArray(maxValues);
-  Serial.print("Minimum values: ");
-  printArray(minValues);
 }
 
-uint16_t* readArrayCalibrated() {
+unsigned int* readArrayCalibrated() {
   readArray();
 
   for (int i = 0; i < sensorCount; i++) {
@@ -87,8 +103,31 @@ bool isOutOfBounds() {
   return true;
 }
 
-uint16_t getLinePosition() {
+bool isOutOfBoundsBW() {
+  for (int i = 0; i < sensorCountBW; i++) {
+    if (sensorValuesBW[i] >= 512) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool isOutOfBoundsRead() {
   readArrayCalibrated();
+
+  for (int i = 0; i < sensorCount; i++) {
+    if (sensorValues[i] >= 750) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+int getLinePosition() {
+  unsigned int* ptr = readArrayCalibrated();
+  //printArray(ptr, sensorCount);
 
   float sum = 0;
   float weightedSum = 0;
@@ -100,12 +139,33 @@ uint16_t getLinePosition() {
 
   float position = weightedSum / sum;
 
-  uint16_t scaledPosition = position * 1023.0;
+  int scaledPosition = position * 1023.0;
 
   if (isOutOfBounds()) {
-    scaledPosition = lastPosition;
+    scaledPosition = -lastPosition;
   } else {
     lastPosition = scaledPosition;
+  }
+
+  return scaledPosition;
+}
+
+int getLinePositionBW() {
+  readArrayBW();
+  
+  int scaledPosition;
+
+  if (sensorValuesBW[LEFT] == 1023) {
+      scaledPosition = -512;
+      lastPositionBW = scaledPosition;
+  } else if (sensorValuesBW[RIGHT] == 1023) {
+      scaledPosition = 512;
+      lastPositionBW = scaledPosition;
+  } else if (!isOutOfBoundsBW()) {
+      scaledPosition = 0;
+      lastPositionBW = scaledPosition;
+  } else {
+      scaledPosition = lastPositionBW;
   }
 
   return scaledPosition;
