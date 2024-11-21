@@ -174,13 +174,23 @@ def enter_paused_state(event=None):
     global car_activated
     if car_activated:
         car_activate.set("0")
-        sendData()
+        send_data()
+
+def enter_active_state(event=None):
+    """
+    Activar el carro cuando se presiona la tecla 'a'.
+    """
+    global car_activated
+    if not car_activated:
+        car_activate.set("1")
+        send_data()
 
 # Crear la ventana principal
 root = tk.Tk()
 root.title("Control UART")
 
 root.bind('q', enter_paused_state)
+root.bind('a', enter_active_state)
 
 # Variables para los controles
 car_activate = tk.StringVar(value="0")
@@ -189,9 +199,9 @@ red_action = tk.StringVar(value="0")
 green_action = tk.StringVar(value="0")
 blue_action = tk.StringVar(value="0")
 
-kp_var = tk.StringVar(value="250")
-speed_var = tk.StringVar(value="200")
-kd_var = tk.StringVar(value="0")
+kp_var = tk.StringVar(value="4000")
+speed_var = tk.StringVar(value="210")
+kd_var = tk.StringVar(value="2000")
 
 # Controles de la GUI
 frame1 = tk.LabelFrame(root, text="Control del Byte 1", padx=10, pady=10)
