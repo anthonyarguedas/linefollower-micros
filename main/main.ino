@@ -8,7 +8,7 @@
 #include "src/ColorDetection.h"
 
 // TODO: Remove
-//#define USE_COLOR
+#define USE_COLOR
 
 unsigned short state = PAUSED;
 unsigned short calibrationState = UNCALIBRATED;

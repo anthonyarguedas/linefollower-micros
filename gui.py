@@ -167,9 +167,20 @@ def receive_data():
     # Llamar nuevamente después de 10 ms
     root.after(10, receive_data)
 
+def enter_paused_state(event=None):
+    """
+    Pausar el carro cuando se presiona la tecla 'q'.
+    """
+    global car_activated
+    if car_activated:
+        car_activate.set("0")
+        sendData()
+
 # Crear la ventana principal
 root = tk.Tk()
 root.title("Control UART")
+
+root.bind('q', enter_paused_state)
 
 # Variables para los controles
 car_activate = tk.StringVar(value="0")
