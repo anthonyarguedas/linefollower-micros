@@ -5,7 +5,7 @@ float Kp = 0.25;  // Proportional gain
 float Ki = 0;  // Integral gain
 float Kd = 0;  // Derivative gain
 
-int targetPosition = 0;  // Target position (centered on the line)
+int targetPosition = 3500;  // Target position (centered on the line)
 
 float previousError = 0;
 int Speed = 0;
@@ -29,8 +29,6 @@ void initMotorPins() {
   
   // Enable the driver
   digitalWrite(SLP, HIGH);
-
-  // analogWriteResolution(10);
 }
 
 // Function to set motor speeds
@@ -61,19 +59,9 @@ void updatePID(int position, unsigned short state) {
   // PID output
   float correction = (Kp * error) + (Kd * derivative);
 
-  /*
-  int Speed = (state == FAST) ? 235 : 215;
-  int motorA_speed = constrain(Speed - correction, 0, Speed);
-  int motorB_speed = constrain(Speed + correction, 0, Speed);
-  */
   int maximumSpeed = (state == FAST) ? 255 : Speed;
   int motorA_speed = constrain(maximumSpeed - correction, 0, maximumSpeed);
   int motorB_speed = constrain(maximumSpeed + correction, 0, maximumSpeed);
-  
-  //Serial.print("A Speed: ");
-  //Serial.print(motorA_speed);
-  //Serial.print(" B Speed: ");
-  //Serial.println(motorB_speed);
 
   if (state != BACKWARD) {
     // Check polarity

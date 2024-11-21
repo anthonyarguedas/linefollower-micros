@@ -191,6 +191,8 @@ void loop() {
                     if (!isOutOfBoundsRead()) {
                         brakeLock = 0;
                         state = FORWARD;
+                    } else {
+                        Serial.println("Out of bounds.");
                     }
                     break;
                 default:
@@ -250,6 +252,8 @@ void loop() {
             position = getLinePositionBW();
             delayNB(1);
             updatePID(position, state);
+            Serial.print("BW position: ");
+            Serial.println(position);
             break;
         default:
             position = getLinePosition();

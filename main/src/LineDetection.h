@@ -3,24 +3,26 @@
 
 #include "Arduino.h"
 
+#include "QTRSensors.h"
 #include "pins.h"
 #include "globals.h"
 
 #define sensorCount 8
+#define NUM_SAMPLES_PER_SENSOR 4
 #define sensorCountBW 8
 
 #define OUT_OF_BOUNDS_THRESHOLD 750
 
 void initLineDetectorPins();
-unsigned int* readArray();
 unsigned int* readArrayBW();
 void printArray(unsigned int* values);
-void calculateMaxMin();
+void printMeasurements();
 void calibrateLineDetector();
 unsigned int* readArrayCalibrated();
+bool isFork();
 bool isOutOfBounds();
-bool isOutOfBoundsBW();
 bool isOutOfBoundsRead();
+bool isOutOfBoundsBW();
 int getLinePosition();
 int getLinePositionBW();
 
