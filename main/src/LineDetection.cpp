@@ -19,18 +19,15 @@ void initLineDetectorPins() {
     for (int i=0; i<sensorCountBW; i++) {
         pinMode(sensorPinsBW[i], INPUT);
     }
-    
+
     pinMode(IR, OUTPUT);
-    digitalWrite(IR, LOW);
+    digitalWrite(IR, HIGH);
 }
 
 unsigned int* readArrayBW() {
   for (int i = 0; i < sensorCountBW; i++) {
     sensorValuesBW[i] = digitalRead(sensorPinsBW[i]) * 1023;
-    Serial.print(sensorValuesBW[i]);
-    Serial.print(" ");
   }
-  Serial.println();
 
   return sensorValuesBW;
 }
@@ -111,6 +108,7 @@ int getLinePosition(unsigned short turnDirection, bool* isfork) {
   int position = qtra.readLine(sensorValues);
   *isfork = isFork();
 
+  /*
   if (isfork && !isOutOfBounds()) {
       switch(turnDirection) {
           case LEFT:
@@ -122,6 +120,7 @@ int getLinePosition(unsigned short turnDirection, bool* isfork) {
       }
       position = constrain(position, 0, 7000);
   }
+  */
 
   return position;
 }
