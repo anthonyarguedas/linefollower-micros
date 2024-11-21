@@ -1,7 +1,8 @@
 #include "LineDetection.h"
 
 // Array FORWARD
-QTRSensorsAnalog qtra((unsigned char[]) {D7, D6, D5, D4, D3, D2, D1}, 
+//QTRSensorsAnalog qtra((unsigned char[]) {D7, D6, D5, D4, D3, D2, D1}, 
+QTRSensorsAnalog qtra((unsigned char[]) {D6, D6, D5, D4, D3, D2, D1}, 
   sensorCount, NUM_SAMPLES_PER_SENSOR, QTR_NO_EMITTER_PIN);
 unsigned int sensorValues[sensorCount];
 

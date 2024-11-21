@@ -139,8 +139,12 @@ def send_data():
     root.after(10, lambda: GPIO.output(18, GPIO.LOW))
 
 def uart_listener():
+    # Flush
+    if uart.in_waiting > 0:
+        uart.read_all()
+    
     while True:
-        while uart.in_waiting >= 10:
+        if uart.in_waiting >= 10:
             # Read incoming data
             contador_rojo = int.from_bytes(uart.read(1), byteorder='big')
             contador_verde = int.from_bytes(uart.read(1), byteorder='big')
@@ -173,10 +177,9 @@ def plot_positions():
     fig, ax = plt.subplots()
     line, = ax.plot([], [], label="Position")
     ax.set_xlim(0, 300)
-    ax.set_ylim(0, 3500)
-    ax.set_title("Position Values Over Time")
-    ax.set_xlabel("Time Steps")
-    ax.set_ylabel("Position")
+    ax.set_ylim(0, 7000)
+    ax.set_title("Posicion")
+    ax.set_ylabel("Posicion")
     ax.legend()
 
     while True:
