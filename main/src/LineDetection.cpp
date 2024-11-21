@@ -58,6 +58,27 @@ void calibrateLineDetector() {
 
 unsigned int* readArrayCalibrated() {
   qtra.readCalibrated(sensorValues);
+
+  return sensorValues;
+}
+
+bool isOutOfBounds() {
+    bool allBlack = true;
+    bool allWhite = true;
+
+    for (int i=0; i<sensorCount; i++) {
+        if (sensorValues[i] >= OUT_OF_BOUNDS_THRESHOLD) {allWhite = false;}
+        else {allBlack = false;}
+    }
+
+    return allBlack || allWhite;
+}
+
+bool isOutOfBoundsRead() {
+    qtra.readCalibrated(sensorValues);
+
+    bool result = isOutOfBounds();
+    return result;
 }
 
 bool isOutOfBoundsBW() {
@@ -79,11 +100,16 @@ bool isFork() {
     }
   }
 
-  return (blackCounter >= 4) ? true : false;
+  return ((blackCounter >= 4) && (blackCounter < 7)) ? true : false;
 }
 
 int getLinePosition() {
-  return position = qtra.readLine(sensorValues);;
+  int position = qtra.readLine(sensorValues);
+
+  Serial.print("Fork: ");
+  Serial.println(isFork());
+
+  return position;
 }
 
 int getLinePositionBW() {
