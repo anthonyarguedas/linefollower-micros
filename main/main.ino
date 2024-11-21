@@ -62,15 +62,15 @@ bool UARTRead() {
     // Leer los 7 bytes recibidos
     unsigned short byte1 = Serial2.read();
     unsigned int kp_raw = (Serial2.read() << 8) | Serial2.read(); // Bytes 2 y 3
-    unsigned int ki_raw = (Serial2.read() << 8) | Serial2.read(); // Bytes 4 y 5
+    unsigned int speed_raw = (Serial2.read() << 8) | Serial2.read(); // Bytes 4 y 5
     unsigned int kd_raw = (Serial2.read() << 8) | Serial2.read(); // Bytes 6 y 7
 
-    // Convertir a valores decimales (dividir por 100)
-    float kp = kp_raw / 100.0;
-    float ki = ki_raw / 100.0;
-    float kd = kd_raw / 100.0;
+    // Convertir a valores decimales (dividir por 1000)
+    float kp = kp_raw / 1000.0;
+    float Speed = speed_raw / 1000.0;
+    float kd = kd_raw / 1000.0;
 
-    updatePIDParams(kp, kd, ki);
+    updatePIDParams(kp, kd, Speed);
 
     // Extraer las secciones del byte1
     unsigned short redState = (byte1 & 0b00110000) >> 4;     // Bits 3 y 4
