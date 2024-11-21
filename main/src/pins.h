@@ -9,11 +9,11 @@
 #define RX 7
 #define SIGNAL 9
 
-#define AIN1 0
-#define AIN2 1
+#define AIN1 3
+#define AIN2 4
 #define SLP 2
-#define BIN1 3
-#define BIN2 4
+#define BIN1 0
+#define BIN2 1
 
 // Array analógico
 #define D8 23

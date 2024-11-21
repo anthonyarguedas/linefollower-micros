@@ -117,7 +117,7 @@ bool isOutOfBoundsRead() {
   readArrayCalibrated();
 
   for (int i = 0; i < sensorCount; i++) {
-    if (sensorValues[i] >= 512) {
+    if (sensorValues[i] >= 750) {
       return false;
     }
   }
@@ -127,7 +127,7 @@ bool isOutOfBoundsRead() {
 
 int getLinePosition() {
   unsigned int* ptr = readArrayCalibrated();
-  printArray(ptr, sensorCount);
+  //printArray(ptr, sensorCount);
 
   float sum = 0;
   float weightedSum = 0;
@@ -142,7 +142,7 @@ int getLinePosition() {
   int scaledPosition = position * 1023.0;
 
   if (isOutOfBounds()) {
-    scaledPosition = lastPosition;
+    scaledPosition = -lastPosition;
   } else {
     lastPosition = scaledPosition;
   }

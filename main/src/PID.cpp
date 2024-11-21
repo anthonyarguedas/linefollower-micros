@@ -55,13 +55,11 @@ void updatePID(int position, unsigned short state) {
   // Proportional term
   float error = targetPosition - position;
 
-  integral += error;
-
   // Derivative term
   float derivative = (error - previousError);
   previousError = error;
   // PID output
-  float correction = (Kp * error) + (Ki * integral) + (Kd * derivative);
+  float correction = (Kp * error) + (Kd * derivative);
 
   /*
   int Speed = (state == FAST) ? 235 : 215;
@@ -69,15 +67,16 @@ void updatePID(int position, unsigned short state) {
   int motorB_speed = constrain(Speed + correction, 0, Speed);
   */
   int maximumSpeed = (state == FAST) ? 255 : Speed;
-  int motorA_speed = constrain(maximumSpeed - correction, 0, Speed);
-  int motorB_speed = constrain(maximumSpeed + correction, 0, Speed);
+  int motorA_speed = constrain(maximumSpeed - correction, 0, maximumSpeed);
+  int motorB_speed = constrain(maximumSpeed + correction, 0, maximumSpeed);
   
-  Serial.print("A Speed: ");
-  Serial.print(motorA_speed);
-  Serial.print("B Speed: ");
-  Serial.println(motorB_speed);
+  //Serial.print("A Speed: ");
+  //Serial.print(motorA_speed);
+  //Serial.print(" B Speed: ");
+  //Serial.println(motorB_speed);
 
   if (state != BACKWARD) {
+    // Check polarity
     setMotorPWM(motorA_speed, AIN1, AIN2);
     setMotorPWM(motorB_speed, BIN1, BIN2);
   } else {
@@ -86,10 +85,17 @@ void updatePID(int position, unsigned short state) {
   }
 }
 
-void updatePIDParams(float newKp, float newKd, float newSpeed) {
+void updatePIDParams(float newKp, float newKd, int newSpeed) {
   Kp = newKp;
   Kd = newKd;
   Speed = newSpeed;
+  
+  Serial.print("Kp: ");
+  Serial.print(Kp);
+  Serial.print(" Kd: ");
+  Serial.print(Kd);
+  Serial.print(" Speed: ");
+  Serial.println(Speed);
 }
 
 void directionChange() {

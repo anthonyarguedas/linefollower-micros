@@ -62,12 +62,11 @@ bool UARTRead() {
     // Leer los 7 bytes recibidos
     unsigned short byte1 = Serial2.read();
     unsigned int kp_raw = (Serial2.read() << 8) | Serial2.read(); // Bytes 2 y 3
-    unsigned int speed_raw = (Serial2.read() << 8) | Serial2.read(); // Bytes 4 y 5
+    int Speed = (Serial2.read() << 8) | Serial2.read(); // Bytes 4 y 5
     unsigned int kd_raw = (Serial2.read() << 8) | Serial2.read(); // Bytes 6 y 7
 
     // Convertir a valores decimales (dividir por 1000)
     float kp = kp_raw / 1000.0;
-    float Speed = speed_raw / 1000.0;
     float kd = kd_raw / 1000.0;
 
     updatePIDParams(kp, kd, Speed);
@@ -89,6 +88,9 @@ bool UARTRead() {
 
     turnDirection = (byte1 & 0b01000000) >> 6;       // Bit 2
     unsigned short activate = (byte1 & 0b10000000) >> 7;  // Bit 1
+
+    Serial.print("Activate: ");
+    Serial.println(activate);
 
     if (activate == 1) {
         state = FORWARD;

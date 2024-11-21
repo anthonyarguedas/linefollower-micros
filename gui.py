@@ -56,9 +56,9 @@ def update_controls_state():
         blue_radio_frenar.config(state="disabled")
         blue_radio_cambiar.config(state="disabled")
         blue_radio_retroceder.config(state="disabled")
-        speed_scale.config(state="disabled")
-        kp_scale.config(state="disabled")
-        kd_scale.config(state="disabled")
+        speed_entry.config(state="disabled")
+        kp_entry.config(state="disabled")
+        kd_entry.config(state="disabled")
 
         car_activated = True
     elif car_activate.get() == "0" and car_activated:  # Carro desactivado
@@ -74,9 +74,9 @@ def update_controls_state():
         blue_radio_frenar.config(state="normal")
         blue_radio_cambiar.config(state="normal")
         blue_radio_retroceder.config(state="normal")
-        speed_scale.config(state="normal")
-        kp_scale.config(state="normal")
-        kd_scale.config(state="normal")
+        speed_entry.config(state="normal")
+        kp_entry.config(state="normal")
+        kd_entry.config(state="normal")
 
         car_activated = False
 
@@ -99,9 +99,9 @@ def send_data():
         (int(green_action.get()) << 2) |
         int(blue_action.get())
     )
-    kp = kp_var.get()
-    speed = speed_var.get()
-    kd = kd_var.get()
+    kp = int(kp_var.get())
+    speed = int(speed_var.get())
+    kd = int(kd_var.get())
 
     # Crear y enviar el paquete
     data_to_send = create_data(byte1, kp, speed, kd)
@@ -178,9 +178,9 @@ red_action = tk.StringVar(value="0")
 green_action = tk.StringVar(value="0")
 blue_action = tk.StringVar(value="0")
 
-kp_var = tk.IntVar(value=500)
-speed_var = tk.IntVar(value=500)
-kd_var = tk.IntVar(value=500)
+kp_var = tk.StringVar(value="250")
+speed_var = tk.StringVar(value="200")
+kd_var = tk.StringVar(value="0")
 
 # Controles de la GUI
 frame1 = tk.LabelFrame(root, text="Control del Byte 1", padx=10, pady=10)
@@ -222,20 +222,20 @@ blue_radio_frenar.grid(row=4, column=1)
 blue_radio_cambiar.grid(row=4, column=2)
 blue_radio_retroceder.grid(row=4, column=3)
 
-frame2 = tk.LabelFrame(root, text="Parámetros PID", padx=10, pady=10)
+frame2 = tk.LabelFrame(root, text="Parametros PID", padx=10, pady=10)
 frame2.pack(padx=10, pady=10, fill="x")
 
-tk.Label(frame2, text="Speed:").grid(row=0, column=0, sticky="w")
-speed_scale = tk.Scale(frame2, from_=0, to=5000, variable=speed_var, orient="horizontal")
-speed_scale.grid(row=0, column=1, sticky="we")
+tk.Label(frame2, text="Speed: (0-255)").grid(row=0, column=0, sticky="w")
+speed_entry = tk.Entry(frame2, textvariable=speed_var, width=10)
+speed_entry.grid(row=0, column=1, sticky="we")
 
-tk.Label(frame2, text="Kp:").grid(row=1, column=0, sticky="w")
-kp_scale = tk.Scale(frame2, from_=0, to=5000, variable=kp_var, orient="horizontal")
-kp_scale.grid(row=1, column=1, sticky="we")
+tk.Label(frame2, text="Kp: (x1000)").grid(row=1, column=0, sticky="w")
+kp_entry = tk.Entry(frame2, textvariable=kp_var, width=10)
+kp_entry.grid(row=1, column=1, sticky="we")
 
-tk.Label(frame2, text="Kd:").grid(row=2, column=0, sticky="w")
-kd_scale = tk.Scale(frame2, from_=0, to=5000, variable=kd_var, orient="horizontal")
-kd_scale.grid(row=2, column=1, sticky="we")
+tk.Label(frame2, text="Kd: (x1000)").grid(row=2, column=0, sticky="w")
+kd_entry = tk.Entry(frame2, textvariable=kd_var, width=10)
+kd_entry.grid(row=2, column=1, sticky="we")
 
 # Frame para mostrar los contadores
 frame3 = tk.LabelFrame(root, text="Contadores de Color", padx=10, pady=10)
