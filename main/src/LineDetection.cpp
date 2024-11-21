@@ -2,12 +2,12 @@
 
 // Array FORWARD
 //QTRSensorsAnalog qtra((unsigned char[]) {D7, D6, D5, D4, D3, D2, D1}, 
-QTRSensorsAnalog qtra((unsigned char[]) {D6, D6, D5, D4, D3, D2, D1}, 
+QTRSensorsAnalog qtra((unsigned char[]) {D7, D6, D5, D4, D3, D2, D1}, 
   sensorCount, NUM_SAMPLES_PER_SENSOR, QTR_NO_EMITTER_PIN);
 unsigned int sensorValues[sensorCount];
 
 // Array BACKWARD
-unsigned short sensorPinsBW[sensorCountBW] = { BWR, BWL, BWC };
+unsigned short sensorPinsBW[sensorCountBW] = { BWR, BWC, BWL };
 
 //float weightsBW[sensorCountBW] = { -1.25, -1.0, -0.75, -0.5, 0.5, 0.75, 1.0, 1.25 };
 
@@ -27,7 +27,10 @@ void initLineDetectorPins() {
 unsigned int* readArrayBW() {
   for (int i = 0; i < sensorCountBW; i++) {
     sensorValuesBW[i] = digitalRead(sensorPinsBW[i]) * 1023;
+    Serial.print(sensorValuesBW[i]);
+    Serial.print(" ");
   }
+  Serial.println();
 
   return sensorValuesBW;
 }
@@ -79,13 +82,17 @@ bool isOutOfBoundsRead() {
 }
 
 bool isOutOfBoundsBW() {
+  bool allWhite = true;
+  
   for (int i = 0; i < sensorCountBW; i++) {
     if (sensorValuesBW[i] >= OUT_OF_BOUNDS_THRESHOLD) {
-      return false;
+      allWhite = false;
     }
   }
+  
+  bool failure = (sensorValuesBW[BWL_VAL] == 1023) && (sensorValuesBW[BWR_VAL] == 1023) && (sensorValuesBW[BWC_VAL] == 0);
 
-  return true;
+  return allWhite || failure;
 }
 
 bool isFork() {
@@ -124,16 +131,18 @@ int getLinePositionBW() {
   
   int scaledPosition;
 
-  if (sensorValuesBW[LEFT] == 1023) {
-      scaledPosition = -512;
-      lastPositionBW = scaledPosition;
-  } else if (sensorValuesBW[RIGHT] == 1023) {
-      scaledPosition = 512;
-      lastPositionBW = scaledPosition;
-  } else if (!isOutOfBoundsBW()) {
+  if (!isOutOfBoundsBW()) {
+    if (sensorValuesBW[BWL_VAL] == 1023) {
       scaledPosition = 0;
-      lastPositionBW = scaledPosition;
-  } else {
+    } else if (sensorValuesBW[BWR_VAL] == 1023) {
+      scaledPosition = 7000;
+    } else {
+      scaledPosition = 3500;
+    }
+
+    lastPositionBW = scaledPosition;
+  }
+  else {
       scaledPosition = lastPositionBW;
   }
 

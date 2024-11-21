@@ -9,7 +9,7 @@
 
 #define sensorCount 8
 #define NUM_SAMPLES_PER_SENSOR 4
-#define sensorCountBW 8
+#define sensorCountBW 3
 
 #define OUT_OF_BOUNDS_THRESHOLD 750
 
