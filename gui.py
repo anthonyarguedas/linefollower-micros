@@ -165,7 +165,7 @@ def receive_data():
         print(f"Posición: {posicion}\n")
 
     # Llamar nuevamente después de 10 ms
-    root.after(5, receive_data)
+    root.after(10, receive_data)
 
 def enter_paused_state(event=None):
     """

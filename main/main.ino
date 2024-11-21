@@ -252,6 +252,8 @@ void loop() {
             position = getLinePositionBW();
             delayNB(1);
             updatePID(position, state);
+            Serial.print("BW position: ");
+            Serial.println(position);
             break;
         default:
             position = getLinePosition();
@@ -263,9 +265,8 @@ void loop() {
         UARTWrite();
         txAvailable = false;
     } else { // TODO: Remove
-        printMeasurements();
         UARTWrite();
     }
 
-    delayNB(10);
+    delayNB(20);
 } 
