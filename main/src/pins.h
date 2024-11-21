@@ -27,8 +27,8 @@
 #define IR 13
 
 // Array digital
-#define BWL 5 // Izquierda
-#define BWR 6 // Derecha
-#define BWC 10 // Centro
+#define BWL 10 // Izquierda
+#define BWC 6 // Centro
+#define BWR 5 // Derecha
 
 #endif
