@@ -267,5 +267,5 @@ void loop() {
         UARTWrite();
     }
 
-    delayNB(20);
+    delayNB(10);
 } 
