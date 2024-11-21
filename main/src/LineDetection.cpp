@@ -132,9 +132,9 @@ int getLinePositionBW() {
 
   if (!isOutOfBoundsBW()) {
     if (sensorValuesBW[BWL_VAL] == 1023) {
-      scaledPosition = 0;
+      scaledPosition = 2000;
     } else if (sensorValuesBW[BWR_VAL] == 1023) {
-      scaledPosition = 7000;
+      scaledPosition = 5000;
     } else {
       scaledPosition = 3500;
     }

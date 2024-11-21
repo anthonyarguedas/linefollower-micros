@@ -6,6 +6,8 @@ import RPi.GPIO as GPIO
 import threading
 import matplotlib.pyplot as plt
 from collections import deque
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 
 estados = {
     0: "PAUSED",
@@ -40,7 +42,7 @@ GPIO.setup(18, GPIO.OUT)
 GPIO.output(18, GPIO.LOW)
 
 car_activated = False
-position_values = deque(maxlen=300)
+position_values = deque(maxlen=10)
 
 def create_data(byte1, kp, speed, kd):
     """
@@ -131,8 +133,6 @@ def send_data():
     data_to_send = create_data(byte1, kp, speed, kd)
     uart.write(data_to_send)
 
-    print("Datos enviados:", data_to_send)
-
     update_controls_state()
 
     GPIO.output(18, GPIO.HIGH)
@@ -168,28 +168,6 @@ def uart_listener():
             root.after(0, lambda: posicion_label.config(text=f"Posición: {posicion}"))
             root.after(0, lambda: out_of_bounds_label.config(text=f"Out of Bounds: {out_of_bounds}"))
             root.after(0, lambda: is_fork_label.config(text=f"Is Fork: {is_fork}"))
-
-def plot_positions():
-    """
-    Plot the collected position values using Matplotlib.
-    """
-    plt.ion()  # Enable interactive mode
-    fig, ax = plt.subplots()
-    line, = ax.plot([], [], label="Position")
-    ax.set_xlim(0, 300)
-    ax.set_ylim(0, 7000)
-    ax.set_title("Posicion")
-    ax.set_ylabel("Posicion")
-    ax.legend()
-
-    while True:
-        if position_values:
-            line.set_data(range(len(position_values)), list(position_values))
-            ax.set_xlim(0, max(len(position_values), 300))  # Adjust x-axis dynamically
-            ax.relim()
-            ax.autoscale_view()
-            fig.canvas.draw()
-            fig.canvas.flush_events()
 
 def enter_paused_state(event=None):
     """
@@ -321,8 +299,39 @@ out_of_bounds_label.pack(anchor="w")
 is_fork_label = tk.Label(frame4, text="Is Fork: False")
 is_fork_label.pack(anchor="w")
 
+# Add a frame for the plot
+frame_plot = tk.LabelFrame(root, text="Posición Plot", padx=10, pady=10)
+frame_plot.pack(padx=10, pady=10, fill="both", expand=True)
+
+# Create the Figure and Canvas
+fig = Figure(figsize=(5, 4), dpi=100)
+ax = fig.add_subplot(111)
+line, = ax.plot([], [], label="Position")
+ax.set_xlim(0, 300)
+ax.set_ylim(0, 7000)
+ax.set_title("Posición")
+ax.set_ylabel("Posición")
+ax.legend()
+
+canvas = FigureCanvasTkAgg(fig, master=frame_plot)
+canvas.draw()
+canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+
+def update_plot():
+    if position_values:
+        line.set_data(range(len(position_values)), list(position_values))
+        ax.set_xlim(0, max(len(position_values), 10))  # Adjust x-axis dynamically
+        ax.set_ylim(0, 7000)
+        ax.relim()
+        ax.autoscale_view()
+        canvas.draw()
+    root.after(100, update_plot)  # Schedule the function to run again after 100 ms
+
+# Start the plot update loop
+update_plot()
+
+# Start the UART listener thread
 threading.Thread(target=uart_listener, daemon=True).start()
-threading.Thread(target=plot_positions, daemon=True).start()
 
 # Iniciar el bucle principal
 root.mainloop()
