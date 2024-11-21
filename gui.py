@@ -3,12 +3,36 @@ import struct
 import tkinter as tk
 from tkinter import ttk
 import RPi.GPIO as GPIO
+import threading
+import matplotlib.pyplot as plt
+from collections import deque
+
+estados = {
+    0: "PAUSED",
+    1: "FORWARD",
+    2: "FAST",
+    3: "BACKWARD",
+    4: "BRAKE"
+}
+
+estados_calibracion = {
+    0: "UNCALIBRATED",
+    1: "CALIBRATING",
+    2: "CALIBRATED"
+}
+
+colores = {
+    0: "RED",
+    1: "GREEN",
+    2: "BLUE",
+    3: "OTHER_COLOR"
+}
 
 # Configurar el puerto UART
 uart = serial.Serial(
-    port='/dev/ttyAMA0',  # Asegúrate de usar el puerto correcto
-    baudrate=115200,       # Velocidad de transmisión
-    timeout=1            # Tiempo de espera
+    port='/dev/ttyAMA0',
+    baudrate=921600,
+    timeout=0
 )
 
 GPIO.setmode(GPIO.BCM)
@@ -16,7 +40,7 @@ GPIO.setup(18, GPIO.OUT)
 GPIO.output(18, GPIO.LOW)
 
 car_activated = False
-
+position_values = deque(maxlen=300)
 
 def create_data(byte1, kp, speed, kd):
     """
@@ -114,58 +138,55 @@ def send_data():
     GPIO.output(18, GPIO.HIGH)
     root.after(10, lambda: GPIO.output(18, GPIO.LOW))
 
-def receive_data():
+def uart_listener():
+    while True:
+        while uart.in_waiting >= 10:
+            # Read incoming data
+            contador_rojo = int.from_bytes(uart.read(1), byteorder='big')
+            contador_verde = int.from_bytes(uart.read(1), byteorder='big')
+            contador_azul = int.from_bytes(uart.read(1), byteorder='big')
+            estado = int.from_bytes(uart.read(1), byteorder='big')
+            estado_calibracion = int.from_bytes(uart.read(1), byteorder='big')
+            color_actual = int.from_bytes(uart.read(1), byteorder='big')
+            posicion = int.from_bytes(uart.read(2), byteorder='big', signed=True)
+            out_of_bounds = bool(int.from_bytes(uart.read(1), byteorder='big'))
+            is_fork = bool(int.from_bytes(uart.read(1), byteorder='big'))
+
+            position_values.append(posicion)
+
+            # Update the GUI using `root.after` to ensure thread safety
+            root.after(0, lambda: rojo_counter_label.config(text=f"Contador Rojo: {contador_rojo}"))
+            root.after(0, lambda: verde_counter_label.config(text=f"Contador Verde: {contador_verde}"))
+            root.after(0, lambda: azul_counter_label.config(text=f"Contador Azul: {contador_azul}"))
+            root.after(0, lambda: estado_label.config(text=f"Estado: {estados.get(estado, 'UNKNOWN')}"))
+            root.after(0, lambda: calibracion_label.config(text=f"Calibración: {estados_calibracion.get(estado_calibracion, 'UNKNOWN')}"))
+            root.after(0, lambda: color_label.config(text=f"Color: {colores.get(color_actual, 'UNKNOWN')}"))
+            root.after(0, lambda: posicion_label.config(text=f"Posición: {posicion}"))
+            root.after(0, lambda: out_of_bounds_label.config(text=f"Out of Bounds: {out_of_bounds}"))
+            root.after(0, lambda: is_fork_label.config(text=f"Is Fork: {is_fork}"))
+
+def plot_positions():
     """
-    Leer datos desde UART.
+    Plot the collected position values using Matplotlib.
     """
-    #if uart.in_waiting >= 3:  # Esperar a tener al menos 3 bytes
-    # TODO: Remove
-    if uart.in_waiting >= 8:
-        # Leer contadores
-        contador_rojo = int.from_bytes(uart.read(1), byteorder='big')
-        contador_verde = int.from_bytes(uart.read(1), byteorder='big')
-        contador_azul = int.from_bytes(uart.read(1), byteorder='big')
+    plt.ion()  # Enable interactive mode
+    fig, ax = plt.subplots()
+    line, = ax.plot([], [], label="Position")
+    ax.set_xlim(0, 300)
+    ax.set_ylim(0, 3500)
+    ax.set_title("Position Values Over Time")
+    ax.set_xlabel("Time Steps")
+    ax.set_ylabel("Position")
+    ax.legend()
 
-        # Actualizar etiquetas en la GUI
-        rojo_counter_label.config(text=f"Contador Rojo: {contador_rojo}")
-        verde_counter_label.config(text=f"Contador Verde: {contador_verde}")
-        azul_counter_label.config(text=f"Contador Azul: {contador_azul}")
-
-        # TODO: Remove
-        estado = int.from_bytes(uart.read(1), byteorder='big')
-        estado_calibracion = int.from_bytes(uart.read(1), byteorder='big')
-        color_actual = int.from_bytes(uart.read(1), byteorder='big')
-
-        estados = {
-            0: "PAUSED",
-            1: "FORWARD",
-            2: "FAST",
-            3: "BACKWARD",
-            4: "BRAKE"
-        }
-
-        estados_calibracion = {
-            0: "UNCALIBRATED",
-            1: "CALIBRATING",
-            2: "CALIBRATED"
-        }
-
-        colores = {
-            0: "RED",
-            1: "GREEN",
-            2: "BLUE",
-            3: "OTHER_COLOR"
-        }
-
-        print(f"Estado: {estados[estado]}")
-        print(f"Calibración: {estados_calibracion[estado_calibracion]}")
-        print(f"Color: {colores[color_actual]}")
-
-        posicion = int.from_bytes(uart.read(2), byteorder='big', signed=True)
-        print(f"Posición: {posicion}\n")
-
-    # Llamar nuevamente después de 10 ms
-    root.after(10, receive_data)
+    while True:
+        if position_values:
+            line.set_data(range(len(position_values)), list(position_values))
+            ax.set_xlim(0, max(len(position_values), 300))  # Adjust x-axis dynamically
+            ax.relim()
+            ax.autoscale_view()
+            fig.canvas.draw()
+            fig.canvas.flush_events()
 
 def enter_paused_state(event=None):
     """
@@ -190,7 +211,7 @@ root = tk.Tk()
 root.title("Control UART")
 
 root.bind('q', enter_paused_state)
-root.bind('a', enter_active_state)
+root.bind('<Return>', enter_active_state)
 
 # Variables para los controles
 car_activate = tk.StringVar(value="0")
@@ -275,8 +296,30 @@ azul_counter_label.pack(anchor="w")
 send_button = tk.Button(root, text="Enviar", command=send_data)
 send_button.pack(pady=10)
 
-# Iniciar recepción de datos
-receive_data()
+# Add new labels for the additional values in the GUI
+frame4 = tk.LabelFrame(root, text="Estado del Sistema", padx=10, pady=10)
+frame4.pack(padx=10, pady=10, fill="x")
+
+estado_label = tk.Label(frame4, text="Estado: PAUSED")
+estado_label.pack(anchor="w")
+
+calibracion_label = tk.Label(frame4, text="Calibración: UNCALIBRATED")
+calibracion_label.pack(anchor="w")
+
+color_label = tk.Label(frame4, text="Color: RED")
+color_label.pack(anchor="w")
+
+posicion_label = tk.Label(frame4, text="Posición: 0")
+posicion_label.pack(anchor="w")
+
+out_of_bounds_label = tk.Label(frame4, text="Out of Bounds: False")
+out_of_bounds_label.pack(anchor="w")
+
+is_fork_label = tk.Label(frame4, text="Is Fork: False")
+is_fork_label.pack(anchor="w")
+
+threading.Thread(target=uart_listener, daemon=True).start()
+threading.Thread(target=plot_positions, daemon=True).start()
 
 # Iniciar el bucle principal
 root.mainloop()
