@@ -96,8 +96,20 @@ bool isFork() {
   return ((blackCounter >= 4) && (blackCounter < 7)) ? true : false;
 }
 
-int getLinePosition() {
+int getLinePosition(unsigned short turnDirection, bool* fork) {
   int position = qtra.readLine(sensorValues);
+  *fork = isFork();
+
+  if (fork && !isOutOfBounds()) {
+      switch(turnDirection) {
+          case LEFT:
+            position -= 1750; // 3500/2
+            break;
+          case RIGHT:
+            position += 1750;
+            break;
+      }
+  }
 
   return position;
 }
