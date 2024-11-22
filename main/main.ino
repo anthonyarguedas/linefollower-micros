@@ -231,7 +231,7 @@ void loop() {
                 turnMotorsOff();
                 break;
             case BACKWARD:
-                position = getLinePositionBW();
+                position = getLinePositionBW(avoidColor);
                 delayNB(1000);
                 updatePID(position, state);
                 break;

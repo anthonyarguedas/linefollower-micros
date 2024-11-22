@@ -64,8 +64,8 @@ void updatePID(int position, unsigned short state) {
   
   if (state == FAST) {
     correction = (KpFAST * error) + (KdFAST * derivative);
-  } else if (state == FORWARD) {
-    correction = (Kp * error) + (Kd * derivative)
+  } else {
+    correction = (Kp * error) + (Kd * derivative);
   }
 
   int maximumSpeed = (state == FAST) ? 180 : Speed;
