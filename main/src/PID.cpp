@@ -1,14 +1,17 @@
 #include "PID.h"
 
 
-float Kp = 0.25;  // Proportional gain
+float Kp = 2.0;  // Proportional gain
 float Ki = 0;  // Integral gain
-float Kd = 0;  // Derivative gain
+float Kd = 2.0;  // Derivative gain
+
+float KpFAST = 4.0;
+float KdFAST = 4.0;
 
 int targetPosition = 3500;  // Target position (centered on the line)
 
 float previousError = 0;
-int Speed = 0;
+int Speed = 170;
 
 void initMotorPins() {
   pinMode(AIN1, OUTPUT);
@@ -57,9 +60,15 @@ void updatePID(int position, unsigned short state) {
   float derivative = (error - previousError);
   previousError = error;
   // PID output
-  float correction = (Kp * error) + (Kd * derivative);
+  float correction;
+  
+  if (state == FAST) {
+    correction = (KpFAST * error) + (KdFAST * derivative);
+  } else if (state == FORWARD) {
+    correction = (Kp * error) + (Kd * derivative)
+  }
 
-  int maximumSpeed = (state == FAST) ? SPEED_UPPER_LIMIT : Speed;
+  int maximumSpeed = (state == FAST) ? 180 : Speed;
   int motorA_speed = constrain(maximumSpeed - correction, SPEED_LOWER_LIMIT, maximumSpeed);
   int motorB_speed = constrain(maximumSpeed + correction, SPEED_LOWER_LIMIT, maximumSpeed);
 

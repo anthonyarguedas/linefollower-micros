@@ -33,7 +33,7 @@ colores = {
 # Configurar el puerto UART
 uart = serial.Serial(
     port='/dev/ttyAMA0',
-    baudrate=921600,
+    baudrate=115200,
     timeout=0
 )
 
@@ -85,6 +85,7 @@ def update_controls_state():
         speed_entry.config(state="disabled")
         kp_entry.config(state="disabled")
         kd_entry.config(state="disabled")
+        error_label.config(text="")
 
         car_activated = True
     elif car_activate.get() == "0" and car_activated:  # Carro desactivado
@@ -103,6 +104,7 @@ def update_controls_state():
         speed_entry.config(state="normal")
         kp_entry.config(state="normal")
         kd_entry.config(state="normal")
+        error_label.config(text="")
 
         car_activated = False
 
@@ -114,6 +116,7 @@ def send_data():
 
     if car_activate.get() == "1" and car_activated:
         # Mostrar mensaje de error en la terminal
+        error_label.config(text="Error: El carro está activo. No se pueden cambiar parámetros.")
         print("Error: El carro está activo. No se pueden cambiar parámetros.")
         return
 
@@ -201,8 +204,8 @@ red_action = tk.StringVar(value="0")
 green_action = tk.StringVar(value="0")
 blue_action = tk.StringVar(value="0")
 
-kp_var = tk.StringVar(value="4000")
-speed_var = tk.StringVar(value="210")
+kp_var = tk.StringVar(value="2000")
+speed_var = tk.StringVar(value="170")
 kd_var = tk.StringVar(value="2000")
 
 # Controles de la GUI
@@ -272,6 +275,9 @@ verde_counter_label.pack(anchor="w")
 
 azul_counter_label = tk.Label(frame3, text="Contador Azul: 0")
 azul_counter_label.pack(anchor="w")
+
+error_label = tk.Label(root, text="", fg="red", font=("Arial", 10), anchor="w", wraplength=400)
+error_label.pack(padx=10, pady=5, fill="x")
 
 # Botón para enviar datos
 send_button = tk.Button(root, text="Enviar", command=send_data)

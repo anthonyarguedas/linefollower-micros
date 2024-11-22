@@ -138,7 +138,7 @@ void setup() {
     tcs.begin();
 
     Serial.begin(115200);
-    Serial2.begin(921600);
+    Serial2.begin(115200);
 
     pinMode(SIGNAL, INPUT);
     attachInterrupt(digitalPinToInterrupt(SIGNAL), UARTRXISR, RISING);
@@ -231,15 +231,13 @@ void loop() {
                 turnMotorsOff();
                 break;
             case BACKWARD:
-                //position = getLinePositionBW();
-                position = getLinePosition(&isfork, turnDirection);
+                position = getLinePositionBW();
                 delayNB(1000);
-                updatePID(position, FORWARD);
+                updatePID(position, state);
                 break;
             default:
-                //position = getLinePosition(&isfork, turnDirection);
-                position = getLinePositionBW(avoidColor);
-                updatePID(position, BACKWARD);
+                position = getLinePosition(&isfork, turnDirection);
+                updatePID(position, state);
                 delayNB(1000);
         }
 
