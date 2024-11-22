@@ -56,7 +56,7 @@ void UARTRXISR() {
 }
 
 void FORKISR() {
-    isfork = (GPIO2_DR & (1 << 2)) ? true : false;
+    isfork = (GPIO2_DR & (1 << 2)) ? false : true;
 }
 
 bool UARTRead() {
@@ -108,6 +108,7 @@ bool UARTRead() {
         state = PAUSED;
         calibrationState = UNCALIBRATED;
     }
+    Serial.println(activate);
 
     return false;
   } else {
@@ -129,8 +130,6 @@ void UARTWrite() {
 
     txBuffer[8] = outOfBounds;
     txBuffer[9] = isfork;
-
-    Serial2.write(txBuffer, 10);
 }
 
 
@@ -145,7 +144,7 @@ void setup() {
     pinMode(SIGNAL, INPUT);
     attachInterrupt(digitalPinToInterrupt(SIGNAL), UARTRXISR, RISING);
 
-    attachInterrupt(digitalPinToInterrupt(FORK), FORKISR, CHANGE);
+    //attachInterrupt(digitalPinToInterrupt(FORK), FORKISR, CHANGE);
 }
 
 void loop() {
@@ -235,15 +234,13 @@ void loop() {
                 turnMotorsOff();
                 break;
             case BACKWARD:
-                //position = getLinePositionBW();
-                position = getLinePosition(&isfork, turnDirection);
+                position = getLinePositionBW(avoidColor);
                 delayNB(1000);
-                updatePID(position, FORWARD);
+                updatePID(position, state);
                 break;
             default:
-                //position = getLinePosition(&isfork, turnDirection);
-                position = getLinePositionBW(avoidColor);
-                updatePID(position, BACKWARD);
+                position = getLinePosition(isfork, turnDirection);
+                updatePID(position, state);
                 delayNB(1000);
         }
 
