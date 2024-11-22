@@ -1,12 +1,13 @@
 #include "LineDetection.h"
 
 // Array FORWARD
+//QTRSensorsAnalog qtra((unsigned char[]) {D7, D6, D5, D4, D3, D2, D1}, 
 QTRSensorsAnalog qtra((unsigned char[]) {D7, D6, D5, D4, D3, D2, D1}, 
   sensorCount, NUM_SAMPLES_PER_SENSOR, QTR_NO_EMITTER_PIN);
 unsigned int sensorValues[sensorCount];
 
 // Array BACKWARD
-unsigned short sensorPinsBW[sensorCountBW] = { BWL, BWR, BWC };
+unsigned short sensorPinsBW[sensorCountBW] = { BWR, BWC, BWL };
 
 //float weightsBW[sensorCountBW] = { -1.25, -1.0, -0.75, -0.5, 0.5, 0.75, 1.0, 1.25 };
 
@@ -18,6 +19,9 @@ void initLineDetectorPins() {
     for (int i=0; i<sensorCountBW; i++) {
         pinMode(sensorPinsBW[i], INPUT);
     }
+
+    pinMode(IR, OUTPUT);
+    digitalWrite(IR, HIGH);
 }
 
 unsigned int* readArrayBW() {
@@ -42,18 +46,11 @@ void printMeasurements() {
 }
 
 void calibrateLineDetector() {
-  unsigned long startTime = millis();
+  elapsedMillis startTime = 0;
   // Calibrate for 10 s
-  while (millis() - startTime < 10000) {
+  while (startTime < 10000) {
     qtra.calibrate();
   }
-
-  for (int i = 0; i < sensorCount; i++)
-  {
-    Serial.print(qtra.calibratedMaximumOn[i]);
-    Serial.print(' ');
-  }
-  Serial.println();
 }
 
 unsigned int* readArrayCalibrated() {
@@ -82,13 +79,17 @@ bool isOutOfBoundsRead() {
 }
 
 bool isOutOfBoundsBW() {
+  bool allWhite = true;
+  
   for (int i = 0; i < sensorCountBW; i++) {
     if (sensorValuesBW[i] >= OUT_OF_BOUNDS_THRESHOLD) {
-      return false;
+      allWhite = false;
     }
   }
+  
+  bool failure = (sensorValuesBW[BWL_VAL] == 1023) && (sensorValuesBW[BWR_VAL] == 1023) && (sensorValuesBW[BWC_VAL] == 0);
 
-  return true;
+  return allWhite || failure;
 }
 
 bool isFork() {
@@ -103,11 +104,23 @@ bool isFork() {
   return ((blackCounter >= 4) && (blackCounter < 7)) ? true : false;
 }
 
-int getLinePosition() {
+int getLinePosition(unsigned short turnDirection, bool* isfork) {
   int position = qtra.readLine(sensorValues);
+  *isfork = isFork();
 
-  Serial.print("Fork: ");
-  Serial.println(isFork());
+  /*
+  if (isfork && !isOutOfBounds()) {
+      switch(turnDirection) {
+          case LEFT:
+            position -= 1750; // 3500/2
+            break;
+          case RIGHT:
+            position += 1750;
+            break;
+      }
+      position = constrain(position, 0, 7000);
+  }
+  */
 
   return position;
 }
@@ -117,16 +130,18 @@ int getLinePositionBW() {
   
   int scaledPosition;
 
-  if (sensorValuesBW[LEFT] == 1023) {
-      scaledPosition = -512;
-      lastPositionBW = scaledPosition;
-  } else if (sensorValuesBW[RIGHT] == 1023) {
-      scaledPosition = 512;
-      lastPositionBW = scaledPosition;
-  } else if (!isOutOfBoundsBW()) {
-      scaledPosition = 0;
-      lastPositionBW = scaledPosition;
-  } else {
+  if (!isOutOfBoundsBW()) {
+    if (sensorValuesBW[BWL_VAL] == 1023) {
+      scaledPosition = 2000;
+    } else if (sensorValuesBW[BWR_VAL] == 1023) {
+      scaledPosition = 5000;
+    } else {
+      scaledPosition = 3500;
+    }
+
+    lastPositionBW = scaledPosition;
+  }
+  else {
       scaledPosition = lastPositionBW;
   }
 
