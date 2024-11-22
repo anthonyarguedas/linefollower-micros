@@ -92,6 +92,7 @@ bool isOutOfBoundsBW() {
   return allWhite || failure;
 }
 
+/*
 bool isFork() {
   unsigned short blackCounter = 0;
 
@@ -103,30 +104,16 @@ bool isFork() {
 
   return ((blackCounter >= 4) && (blackCounter < 7)) ? true : false;
 }
+*/
 
-int getLinePosition(unsigned short turnDirection, bool* isfork) {
-  int position = qtra.readLine(sensorValues);
-  *isfork = isFork();
-
-  /*
-  if (isfork && !isOutOfBounds()) {
-      switch(turnDirection) {
-          case LEFT:
-            position -= 1750; // 3500/2
-            break;
-          case RIGHT:
-            position += 1750;
-            break;
-      }
-      position = constrain(position, 0, 7000);
-  }
-  */
-
+int getLinePosition(bool* isfork, unsigned short turnDirection) {
+  int position = qtra.readLine(sensorValues, isfork, turnDirection);
   return position;
 }
 
 int getLinePositionBW() {
-  readArrayBW();
+  unsigned int* ptr = readArrayBW();
+  printArray(ptr, sensorCountBW);
   
   int scaledPosition;
 

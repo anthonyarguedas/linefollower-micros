@@ -109,7 +109,7 @@ class QTRSensors
     // black, set the optional second argument white_line to true.  In
     // this case, each sensor value will be replaced by (1000-value)
     // before the averaging.
-    int readLine(unsigned int *sensor_values, unsigned char readMode = QTR_EMITTERS_ON, unsigned char white_line = 0);
+    int readLine(unsigned int *sensor_values, bool* isfork, unsigned short turnDirection, unsigned char readMode = QTR_EMITTERS_ON, unsigned char white_line = 0);
 
     // A simple loop over the sensors and their midpoints to determine
     // whether or not a sensor is high, returns the count of high sensors

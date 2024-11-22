@@ -230,7 +230,8 @@ void loop() {
                 updatePID(position, state);
                 break;
             default:
-                position = getLinePosition(turnDirection, &isfork);
+                position = getLinePosition(&isfork, turnDirection);
+                //position = getLinePositionBW();
                 updatePID(position, state);
                 delayNB(1000);
         }
