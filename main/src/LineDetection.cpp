@@ -102,25 +102,29 @@ int getLinePosition(bool* isfork, unsigned short turnDirection) {
   return position;
 }
 
-int getLinePositionBW() {
-  unsigned int* ptr = readArrayBW();
-  printArray(ptr, sensorCountBW);
-  
+int getLinePositionBW(bool avoidColor) {
   int scaledPosition;
 
-  if (!isOutOfBoundsBW()) {
-    if (sensorValuesBW[BWL_VAL] == 1023) {
-      scaledPosition = 2000;
-    } else if (sensorValuesBW[BWR_VAL] == 1023) {
-      scaledPosition = 5000;
-    } else {
-      scaledPosition = 3500;
-    }
+  if (!avoidColor) {
+      unsigned int* ptr = readArrayBW();
+      printArray(ptr, sensorCountBW);
 
-    lastPositionBW = scaledPosition;
-  }
-  else {
-      scaledPosition = lastPositionBW;
+      if (!isOutOfBoundsBW()) {
+        if (sensorValuesBW[BWL_VAL] == 1023) {
+          scaledPosition = 2000;
+        } else if (sensorValuesBW[BWR_VAL] == 1023) {
+          scaledPosition = 5000;
+        } else {
+          scaledPosition = 3500;
+        }
+
+        lastPositionBW = scaledPosition;
+      }
+      else {
+          scaledPosition = lastPositionBW;
+      }
+  } else {
+      scaledPosition = 3500;
   }
 
   return scaledPosition;

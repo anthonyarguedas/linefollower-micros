@@ -20,7 +20,7 @@ unsigned int* readArrayCalibrated();
 bool isFork();
 bool isOutOfBounds();
 bool isOutOfBoundsRead();
-bool isOutOfBoundsBW();
+bool isOutOfBoundsBW(bool avoidColor);
 int getLinePosition(bool* isfork, unsigned short turnDirection);
 int getLinePositionBW();
 

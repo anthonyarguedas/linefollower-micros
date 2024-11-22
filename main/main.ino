@@ -30,6 +30,7 @@ unsigned short colorStates[3] = {BACKWARD, FAST, BRAKE};
 // Se asume que el carro inicia sobre tape negro
 unsigned short lastColorCode = OTHER_COLOR;
 unsigned short colorCode;
+bool avoidColor = false;
 
 int position;
 bool outOfBounds = false;
@@ -157,6 +158,9 @@ void loop() {
 
                 if (colorCode != lastColorCode) {
                     backwardLock++;
+
+                    if ((colorCode != OTHER_COLOR) && (lastColorCode == OTHER_COLOR)) {avoidColor = true;}
+                    else if ((colorCode == OTHER_COLOR) && (lastColorCode != OTHER_COLOR)) {avoidColor = false;}
                 }
                 lastColorCode = colorCode;
 
@@ -170,8 +174,10 @@ void loop() {
                 break;
             default:
                 getColorCode(&colorCode);
-
                 if (colorCode != lastColorCode) {
+                    if ((colorCode != OTHER_COLOR) && (lastColorCode == OTHER_COLOR)) {avoidColor = true;}
+                    else if ((colorCode == OTHER_COLOR) && (lastColorCode != OTHER_COLOR)) {avoidColor = false;}
+
                     if (backwardLock > 0) {backwardLock--;}
                     if (colorCode != OTHER_COLOR) {
                     colorCounters[colorCode]++;
@@ -232,7 +238,7 @@ void loop() {
                 break;
             default:
                 //position = getLinePosition(&isfork, turnDirection);
-                position = getLinePositionBW();
+                position = getLinePositionBW(avoidColor);
                 updatePID(position, BACKWARD);
                 delayNB(1000);
         }
