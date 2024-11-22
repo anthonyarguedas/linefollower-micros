@@ -335,12 +335,12 @@ int QTRSensors::readLine(unsigned int *sensor_values,
     if (*isfork == true) {
         switch(turnDirection) {
             case LEFT:
-                for (int i=4; i<8-1; i++) {
+                for (int i=4; i<8; i++) {
                     sensor_values[i] = 0;
                 }
                 break;
             case RIGHT:
-                for (int i=0; i<4-1; i++) {
+                for (int i=0; i<4; i++) {
                     sensor_values[i] = 0;
                 }
                 break;
