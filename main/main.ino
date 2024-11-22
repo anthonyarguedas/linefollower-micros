@@ -225,14 +225,15 @@ void loop() {
                 turnMotorsOff();
                 break;
             case BACKWARD:
-                position = getLinePositionBW();
+                //position = getLinePositionBW();
+                position = getLinePosition(&isfork, turnDirection);
                 delayNB(1000);
-                updatePID(position, state);
+                updatePID(position, FORWARD);
                 break;
             default:
-                position = getLinePosition(&isfork, turnDirection);
-                //position = getLinePositionBW();
-                updatePID(position, state);
+                //position = getLinePosition(&isfork, turnDirection);
+                position = getLinePositionBW();
+                updatePID(position, BACKWARD);
                 delayNB(1000);
         }
 

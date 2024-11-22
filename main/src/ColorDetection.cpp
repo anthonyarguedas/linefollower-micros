@@ -1,9 +1,9 @@
 #include "ColorDetection.h"
 
 
-unsigned short expectedRed[3] = {137, 68, 47};
+unsigned short expectedRed[3] = {100, 80, 50};
 unsigned short expectedGreen[3] = {73, 115, 55};
-unsigned short expectedBlue[3] = {62, 82, 103};
+unsigned short expectedBlue[3] = {70, 85, 80};
 
 unsigned short* expectedColors[AMOUNT_OF_COLORS] = {expectedRed, expectedGreen, expectedBlue};
 unsigned short colorCodes[AMOUNT_OF_COLORS] = {RED, GREEN, BLUE};
@@ -16,6 +16,13 @@ void getColorCode(unsigned short *colorCode) {
   while(t0 < 60);  // takes 60ms to read
 
   tcs.getRGB(&red, &green, &blue);
+  
+  Serial.print("R: ");
+  Serial.print(red);
+  Serial.print(" G: ");
+  Serial.print(green);
+  Serial.print(" B:  ");
+  Serial.println(blue);
 
   bool colorFound = false;
 
