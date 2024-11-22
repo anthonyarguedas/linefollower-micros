@@ -17,7 +17,7 @@ void printArray(unsigned int* values);
 void printMeasurements();
 void calibrateLineDetector();
 unsigned int* readArrayCalibrated();
-//bool isFork();
+bool isFork();
 bool isOutOfBounds();
 bool isOutOfBoundsRead();
 bool isOutOfBoundsBW();

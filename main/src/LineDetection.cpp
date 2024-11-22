@@ -92,22 +92,13 @@ bool isOutOfBoundsBW() {
   return allWhite || failure;
 }
 
-/*
 bool isFork() {
-  unsigned short blackCounter = 0;
-
-  for (int i = 0; i < sensorCount; i++) {
-    if (sensorValues[i] >= OUT_OF_BOUNDS_THRESHOLD) {
-      blackCounter++;
-    }
-  }
-
-  return ((blackCounter >= 4) && (blackCounter < 7)) ? true : false;
+  return false;
 }
-*/
 
 int getLinePosition(bool* isfork, unsigned short turnDirection) {
-  int position = qtra.readLine(sensorValues, isfork, turnDirection);
+  *isfork = isFork();
+  int position = qtra.readLine(sensorValues, *isfork, turnDirection);
   return position;
 }
 

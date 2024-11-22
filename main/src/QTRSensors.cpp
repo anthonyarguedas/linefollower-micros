@@ -313,7 +313,7 @@ void QTRSensors::readCalibrated(unsigned int *sensor_values, unsigned char readM
 // this case, each sensor value will be replaced by (1000-value)
 // before the averaging.
 int QTRSensors::readLine(unsigned int *sensor_values,
-    bool* isfork, unsigned short turnDirection, unsigned char readMode, unsigned char white_line)
+    bool isfork, unsigned short turnDirection, unsigned char readMode, unsigned char white_line)
 {
     unsigned char i, on_line = 0;
     unsigned long avg; // this is for the weighted total, which is long
@@ -324,15 +324,8 @@ int QTRSensors::readLine(unsigned int *sensor_values,
 
     avg = 0;
     sum = 0;
-    
-    *isfork = (sensor_values[3] >= OUT_OF_BOUNDS_THRESHOLD) &&
-        (sensor_values[4] >= OUT_OF_BOUNDS_THRESHOLD) &&
-        ((sensor_values[0] >= OUT_OF_BOUNDS_THRESHOLD) ||
-        (sensor_values[1] >= OUT_OF_BOUNDS_THRESHOLD) ||
-        (sensor_values[6] >= OUT_OF_BOUNDS_THRESHOLD) ||
-        (sensor_values[7] >= OUT_OF_BOUNDS_THRESHOLD));
 
-    if (*isfork == true) {
+    if (isfork == true) {
         switch(turnDirection) {
             case LEFT:
                 for (int i=4; i<8; i++) {
