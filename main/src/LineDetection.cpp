@@ -107,7 +107,6 @@ int getLinePositionBW(bool avoidColor) {
 
   if (!avoidColor) {
       unsigned int* ptr = readArrayBW();
-      printArray(ptr, sensorCountBW);
 
       if (!isOutOfBoundsBW()) {
         if (sensorValuesBW[BWL_VAL] == 1023) {
