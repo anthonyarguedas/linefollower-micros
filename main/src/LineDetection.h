@@ -17,11 +17,10 @@ void printArray(unsigned int* values);
 void printMeasurements();
 void calibrateLineDetector();
 unsigned int* readArrayCalibrated();
-bool isFork();
 bool isOutOfBounds();
 bool isOutOfBoundsRead();
 bool isOutOfBoundsBW();
-int getLinePosition(bool* isfork, unsigned short turnDirection);
+int getLinePosition(bool isfork, unsigned short turnDirection);
 int getLinePositionBW(bool avoidColor);
 
 #endif

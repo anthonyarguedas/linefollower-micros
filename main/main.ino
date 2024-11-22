@@ -34,18 +34,16 @@ bool avoidColor = false;
 
 int position;
 bool outOfBounds = false;
-bool isfork = false;
+volatile bool isfork = false;
 
 // Dirección de giro ante una bifurcación
 unsigned short turnDirection = LEFT;
-
-elapsedMicros mainLoopTimer;
-
 
 volatile bool rxAvailable = false;
 bool txAvailable = true;
 byte txBuffer[10];
 
+elapsedMicros mainLoopTimer;
 
 // Non-blocking delay
 void delayNB(unsigned long time) {
@@ -55,6 +53,10 @@ void delayNB(unsigned long time) {
 
 void UARTRXISR() {
     rxAvailable = true;
+}
+
+void FORKISR() {
+    isfork = (GPIO2_DR & (1 << 2)) ? true : false;
 }
 
 bool UARTRead() {
@@ -142,12 +144,14 @@ void setup() {
 
     pinMode(SIGNAL, INPUT);
     attachInterrupt(digitalPinToInterrupt(SIGNAL), UARTRXISR, RISING);
+
+    attachInterrupt(digitalPinToInterrupt(FORK), FORKISR, CHANGE);
 }
 
 void loop() {
     if (mainLoopTimer >= 5000) {
         if (rxAvailable == true) {
-        rxAvailable = UARTRead();
+            rxAvailable = UARTRead();
         }
 
         switch(state) {

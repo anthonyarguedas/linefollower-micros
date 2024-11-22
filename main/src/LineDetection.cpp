@@ -22,6 +22,8 @@ void initLineDetectorPins() {
 
     pinMode(IR, OUTPUT);
     digitalWrite(IR, HIGH);
+
+    pinMode(FORK, INPUT);;
 }
 
 unsigned int* readArrayBW() {
@@ -92,13 +94,8 @@ bool isOutOfBoundsBW() {
   return allWhite || failure;
 }
 
-bool isFork() {
-  return false;
-}
-
-int getLinePosition(bool* isfork, unsigned short turnDirection) {
-  *isfork = isFork();
-  int position = qtra.readLine(sensorValues, *isfork, turnDirection);
+int getLinePosition(bool isfork, unsigned short turnDirection) {
+  int position = qtra.readLine(sensorValues, isfork, turnDirection);
   return position;
 }
 
