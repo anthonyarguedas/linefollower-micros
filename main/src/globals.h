@@ -28,4 +28,6 @@
 #define BWC_VAL 1
 #define BWR_VAL 2
 
+#define OUT_OF_BOUNDS_THRESHOLD 750
+
 #endif // GLOBALS_H

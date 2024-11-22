@@ -6,6 +6,9 @@
 #include "pins.h"
 #include "globals.h"
 
+#define SPEED_UPPER_LIMIT 255
+#define SPEED_LOWER_LIMIT 0
+
 void initMotorPins();
 void setMotorPWM(int pwm, unsigned short IN1_PIN, unsigned short IN2_PIN);
 void updatePID(int position, unsigned short state);

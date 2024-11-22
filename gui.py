@@ -191,7 +191,7 @@ def enter_active_state(event=None):
 root = tk.Tk()
 root.title("Control UART")
 
-root.bind('q', enter_paused_state)
+root.bind('<BackSpace>', enter_paused_state)
 root.bind('<Return>', enter_active_state)
 
 # Variables para los controles

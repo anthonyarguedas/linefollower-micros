@@ -136,6 +136,7 @@ void setup() {
     initMotorPins();
     tcs.begin();
 
+    Serial.begin(115200);
     Serial2.begin(921600);
 
     pinMode(SIGNAL, INPUT);
@@ -230,7 +231,6 @@ void loop() {
                 break;
             default:
                 position = getLinePosition(turnDirection, &isfork);
-                //position = getLinePositionBW();
                 updatePID(position, state);
                 delayNB(1000);
         }

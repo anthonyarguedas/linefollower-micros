@@ -59,9 +59,9 @@ void updatePID(int position, unsigned short state) {
   // PID output
   float correction = (Kp * error) + (Kd * derivative);
 
-  int maximumSpeed = (state == FAST) ? 255 : Speed;
-  int motorA_speed = constrain(maximumSpeed - correction, 0, maximumSpeed);
-  int motorB_speed = constrain(maximumSpeed + correction, 0, maximumSpeed);
+  int maximumSpeed = (state == FAST) ? SPEED_UPPER_LIMIT : Speed;
+  int motorA_speed = constrain(maximumSpeed - correction, SPEED_LOWER_LIMIT, maximumSpeed);
+  int motorB_speed = constrain(maximumSpeed + correction, SPEED_LOWER_LIMIT, maximumSpeed);
 
   if (state != BACKWARD) {
     // Check polarity

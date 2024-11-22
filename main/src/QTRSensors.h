@@ -34,6 +34,8 @@
 #ifndef QTRSensors_h
 #define QTRSensors_h
 
+#include "globals.h"
+
 #define QTR_EMITTERS_OFF 0
 #define QTR_EMITTERS_ON 1
 #define QTR_EMITTERS_ON_AND_OFF 2

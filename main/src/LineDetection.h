@@ -11,8 +11,6 @@
 #define NUM_SAMPLES_PER_SENSOR 4
 #define sensorCountBW 3
 
-#define OUT_OF_BOUNDS_THRESHOLD 750
-
 void initLineDetectorPins();
 unsigned int* readArrayBW();
 void printArray(unsigned int* values);
